@@ -28,9 +28,12 @@ public:
     void run() override;
 
 private:
+    void sourceSampleRateChanged();
+
     void checkForBuffersToFree();
 
-    void evaluateText();
+    void evaluateCode();
+
     juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
     ReferenceCountedBuffer::Ptr resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate);
     float integerToSample(int integer);
@@ -39,6 +42,7 @@ private:
     // access the processor object that created it.
     ByteToneAudioProcessor& audioProcessor;
 
+    juce::ComboBox sourceSampleRateMenu;
     juce::TextEditor textEditor;
     juce::TextButton runButton;
 
@@ -47,6 +51,9 @@ private:
     juce::ReferenceCountedArray<ReferenceCountedBuffer> buffers;
 
     CustomLookAndFeel lf;
+
+    juce::String code;
+    int sourceSampleRate;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessorEditor)
 };

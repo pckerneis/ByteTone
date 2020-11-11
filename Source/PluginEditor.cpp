@@ -5,6 +5,9 @@
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
     : AudioProcessorEditor (&p), Thread("BufferReleaseThread"), audioProcessor (p)
 {
+    setResizable(true, false);
+    setResizeLimits(400, 200, 3000, 3000);
+
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
     textEditor.setFont(textEditor.getFont().withHeight(16.0f));
@@ -14,8 +17,22 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     textEditor.setText("t * ((t>>12 | t>>9) & (t>>6) & 50)");
 
     runButton.setButtonText("Run");
-    runButton.onClick = [this] { evaluateText(); };
+    runButton.onClick = [this] { 
+        code = textEditor.getText();
+        evaluateCode();
+    };
     addAndMakeVisible(runButton);
+
+    addAndMakeVisible(sourceSampleRateMenu);
+
+    sourceSampleRateMenu.addItem("8kHz", 1);
+    sourceSampleRateMenu.addItem("11kHz", 2);
+    sourceSampleRateMenu.addItem("22kHz", 3);
+    sourceSampleRateMenu.addItem("32kHz", 4);
+    sourceSampleRateMenu.addItem("44kHz", 5);
+
+    sourceSampleRateMenu.onChange = [this] { sourceSampleRateChanged(); };
+    sourceSampleRateMenu.setSelectedId(1);
 
     setSize (400, 300);
 
@@ -34,6 +51,21 @@ void ByteToneAudioProcessorEditor::run()
         checkForBuffersToFree();
         wait(500);
     }
+}
+
+void ByteToneAudioProcessorEditor::sourceSampleRateChanged()
+{
+    switch (sourceSampleRateMenu.getSelectedId())
+    {
+        case 1: sourceSampleRate = 8000; break;
+        case 2: sourceSampleRate = 11000; break;
+        case 3: sourceSampleRate = 22000; break;
+        case 4: sourceSampleRate = 32000; break;
+        case 5: sourceSampleRate = 44000; break;
+        default: break;
+    }
+
+    evaluateCode();
 }
 
 void ByteToneAudioProcessorEditor::checkForBuffersToFree()
@@ -61,19 +93,24 @@ void ByteToneAudioProcessorEditor::resized()
 {
     const int headerHeight = 20;
     const int buttonWidth = 40;
+    const int comboWidth = 80;
 
     auto r = getLocalBounds();
     auto top = r.removeFromTop(headerHeight);
     runButton.setBounds(top.removeFromRight(buttonWidth));
+    sourceSampleRateMenu.setBounds(top.removeFromRight(comboWidth));
     textEditor.setBounds(getLocalBounds().withTop(20));
 }
 
-void ByteToneAudioProcessorEditor::evaluateText()
+void ByteToneAudioProcessorEditor::evaluateCode()
 {
-    const int lengthInSamples = 8000 * 30;
-    const auto text = textEditor.getText();
-    const juce::AudioSampleBuffer tempBuffer = generateFromText(text, lengthInSamples);
-    ReferenceCountedBuffer::Ptr newBuffer = resampleBuffer(text, tempBuffer, 8000);
+    if (code.trim().isEmpty()) {
+        return;
+    }
+
+    const int lengthInSamples = sourceSampleRate * 30;
+    const juce::AudioSampleBuffer tempBuffer = generateFromText(code, lengthInSamples);
+    ReferenceCountedBuffer::Ptr newBuffer = resampleBuffer(code, tempBuffer, sourceSampleRate);
     audioProcessor.setCurrentBuffer(newBuffer);
     buffers.add(newBuffer);
 }
@@ -97,7 +134,7 @@ juce::AudioSampleBuffer ByteToneAudioProcessorEditor::generateFromText(juce::Str
 
 ReferenceCountedBuffer::Ptr ByteToneAudioProcessorEditor::resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate)
 {
-    double ratio = 8000 / processor.getSampleRate();
+    double ratio = sourceSampleRate / processor.getSampleRate();
 
     ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(
         name, processor.getNumOutputChannels(), buffer.getNumSamples() / ratio);

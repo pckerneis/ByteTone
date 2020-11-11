@@ -159,6 +159,11 @@ Expr* Parser::primary()
         return new TimeExpr();
     }
 
+    if (match(juce::Array<TokenType>(TokenType::BITWISE_COMPLEMENT)))
+    {
+        return new UnaryExpr(previous(), expression());
+    }
+
     if (match(juce::Array<TokenType>(TokenType::LEFT_PAREN)))
     {
         std::unique_ptr<Expr> expr (expression());

@@ -97,6 +97,9 @@ public:
         case TokenType::MINUS:
             return -right;
             break;
+        case TokenType::BITWISE_COMPLEMENT:
+            return ~right;
+            break;
         }
 
         return 0;

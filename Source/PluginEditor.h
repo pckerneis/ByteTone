@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "Interpreter.h"
+#include "LookAndFeel.h"
 
 //==============================================================================
 /**
@@ -44,6 +45,8 @@ private:
     Interpreter interpreter;
     
     juce::ReferenceCountedArray<ReferenceCountedBuffer> buffers;
+
+    CustomLookAndFeel lf;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessorEditor)
 };

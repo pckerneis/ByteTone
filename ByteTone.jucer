@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="RyLK3Q" name="ByteTone" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              pluginVST3Category="Instrument" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              version="0.0.1">
   <MAINGROUP id="FDAVOO" name="ByteTone">
     <GROUP id="{2F9870A4-9B2D-F58C-B58A-C5E5F9AD4A00}" name="Assets">
       <FILE id="GBZxmO" name="SourceCodePro-Regular.ttf" compile="0" resource="1"
             file="C:/Users/Pierre/Desktop/SourceCodePro-Regular.ttf"/>
     </GROUP>
     <GROUP id="{2BB59562-F943-D599-E19B-620605384060}" name="Source">
-      <FILE id="O5E5KU" name="ReferenceCountedBuffer.cpp" compile="1" resource="0"
-            file="Source/ReferenceCountedBuffer.cpp"/>
-      <FILE id="IyxYpZ" name="ReferenceCountedBuffer.h" compile="0" resource="0"
-            file="Source/ReferenceCountedBuffer.h"/>
+      <GROUP id="{13D8CE1C-A9B9-6376-A543-14EF3E087B90}" name="Editor">
+        <FILE id="b9dneJ" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
+        <FILE id="dUiWBk" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
+        <FILE id="L7ZbPT" name="PluginEditor.cpp" compile="1" resource="0"
+              file="Source/PluginEditor.cpp"/>
+        <FILE id="j5yB82" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      </GROUP>
+      <GROUP id="{C46DA32B-3B29-14A3-FE17-80A85ED2AF2B}" name="Audio">
+        <FILE id="O5E5KU" name="ReferenceCountedBuffer.cpp" compile="1" resource="0"
+              file="Source/ReferenceCountedBuffer.cpp"/>
+        <FILE id="IyxYpZ" name="ReferenceCountedBuffer.h" compile="0" resource="0"
+              file="Source/ReferenceCountedBuffer.h"/>
+        <FILE id="nHuyDV" name="PluginProcessor.cpp" compile="1" resource="0"
+              file="Source/PluginProcessor.cpp"/>
+        <FILE id="gmGRGl" name="PluginProcessor.h" compile="0" resource="0"
+              file="Source/PluginProcessor.h"/>
+      </GROUP>
       <GROUP id="{02A68A41-5573-C414-B331-BCE784671A0A}" name="Interpreter">
         <FILE id="rRdIO0" name="AstVisitor.h" compile="0" resource="0" file="Source/AstVisitor.h"/>
         <FILE id="xV3L8q" name="Expr.cpp" compile="1" resource="0" file="Source/Expr.cpp"/>
@@ -24,13 +39,6 @@
         <FILE id="tp7bVO" name="Scanner.h" compile="0" resource="0" file="Source/Scanner.h"/>
         <FILE id="V0Z7SC" name="Token.h" compile="0" resource="0" file="Source/Token.h"/>
       </GROUP>
-      <FILE id="nHuyDV" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
-      <FILE id="gmGRGl" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
-      <FILE id="L7ZbPT" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="j5yB82" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>

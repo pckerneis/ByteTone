@@ -5,18 +5,13 @@
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
     : AudioProcessorEditor (&p), Thread("BufferReleaseThread"), audioProcessor (p)
 {
-    auto typeface = juce::Typeface::createSystemTypefaceFor(BinaryData::SourceCodeProRegular_ttf,
-        BinaryData::SourceCodeProRegular_ttfSize);
+    juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
-    getLookAndFeel().setDefaultSansSerifTypeface(typeface);
-    
     textEditor.setFont(textEditor.getFont().withHeight(16.0f));
-    textEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::transparentBlack);
-    textEditor.setColour(juce::TextEditor::outlineColourId, juce::Colours::transparentBlack);
     textEditor.setMultiLine(true);
     addAndMakeVisible(textEditor);
 
-    textEditor.setText("t * ((t>>12 | t>>9) & (t>>6)) & 50");
+    textEditor.setText("t * ((t>>12 | t>>9) & (t>>6) & 50)");
 
     runButton.setButtonText("Run");
     runButton.onClick = [this] { evaluateText(); };
@@ -57,8 +52,9 @@ void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)
     g.fillAll (juce::Colours::black);
 
     g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("ByteTone v0.0.0", getLocalBounds().removeFromTop(20), juce::Justification::left, 1);
+    g.setFont (16.0f);
+    const juce::String text = juce::String(ProjectInfo::projectName) + " v" + juce::String(ProjectInfo::versionString);
+    g.drawFittedText (text, getLocalBounds().removeFromTop(20).withLeft(6), juce::Justification::left, 1);
 }
 
 void ByteToneAudioProcessorEditor::resized()

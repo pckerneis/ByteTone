@@ -5,12 +5,12 @@
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
     : AudioProcessorEditor (&p), Thread("BufferReleaseThread"), audioProcessor (p)
 {
-    setResizable(true, false);
+    setResizable(true, true);
     setResizeLimits(400, 200, 3000, 3000);
 
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
-    textEditor.setFont(textEditor.getFont().withHeight(16.0f));
+    textEditor.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
     textEditor.setMultiLine(true);
     addAndMakeVisible(textEditor);
 

@@ -80,10 +80,15 @@ public:
         setColour(ComboBox::backgroundColourId, Colours::transparentBlack);
     }
 
+    int getDefaultFontHeight() const
+    {
+        return 16;
+    }
+
     static Typeface::Ptr getDefaultTypeface()
     {
-        auto typeface = Typeface::createSystemTypefaceFor(BinaryData::SourceCodeProRegular_ttf,
-            BinaryData::SourceCodeProRegular_ttfSize);
+        auto typeface = Typeface::createSystemTypefaceFor(BinaryData::Consolas_ttf,
+            BinaryData::Consolas_ttfSize);
         return typeface;
     }
 
@@ -116,7 +121,27 @@ public:
     
     Font getLabelFont(Label& label)
     {
-        return Font(getDefaultTypeface()).withHeight(15);
+        return Font(getDefaultTypeface()).withHeight(getDefaultFontHeight());
     }
 
+    void drawCornerResizer(Graphics& g, int w, int h, bool /*isMouseOver*/, bool /*isMouseDragging*/)
+    {
+    }
+
+    void drawButtonText(Graphics& g, TextButton& button,
+        bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/) override
+    {
+        Font font(getDefaultTypeface());
+        g.setFont(font.withHeight(getDefaultFontHeight()));
+        g.setColour(button.findColour(button.getToggleState() ? TextButton::textColourOnId
+            : TextButton::textColourOffId)
+            .withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
+
+        const int textWidth = button.getWidth();
+
+        if (textWidth > 0)
+            g.drawText(button.getButtonText(),
+                0, 0, button.getWidth(), button.getHeight(),
+                Justification::centred, false);
+    }
 };

@@ -6,8 +6,7 @@
               version="0.0.1">
   <MAINGROUP id="FDAVOO" name="ByteTone">
     <GROUP id="{2F9870A4-9B2D-F58C-B58A-C5E5F9AD4A00}" name="Assets">
-      <FILE id="GBZxmO" name="SourceCodePro-Regular.ttf" compile="0" resource="1"
-            file="C:/Users/Pierre/Desktop/SourceCodePro-Regular.ttf"/>
+      <FILE id="cdBidz" name="Consolas.ttf" compile="0" resource="1" file="Assets/Consolas.ttf"/>
     </GROUP>
     <GROUP id="{2BB59562-F943-D599-E19B-620605384060}" name="Source">
       <GROUP id="{13D8CE1C-A9B9-6376-A543-14EF3E087B90}" name="Editor">

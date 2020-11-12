@@ -13,10 +13,7 @@
 #include <JuceHeader.h>
 #include "Expr.h"
 #include "Scanner.h"
-
-class ParseError : std::exception
-{
-};
+#include "ParseError.h"
 
 class Parser
 {
@@ -27,6 +24,7 @@ public:
 
 private:
     Expr* expression();
+    Expr* ternaryConditional();
     Expr* bitwiseOr();
     Expr* bitwiseXor();
     Expr* bitwiseAnd();

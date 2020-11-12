@@ -10,6 +10,12 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
 
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
+    console.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
+    console.setMultiLine(true);
+    console.setReadOnly(true);
+    console.setColour(TextEditor::textColourId, juce::Colours::red);
+    addAndMakeVisible(console);
+
     textEditor.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
     textEditor.setMultiLine(true);
     addAndMakeVisible(textEditor);
@@ -87,10 +93,15 @@ void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)
     g.setFont (16.0f);
     const juce::String text = juce::String(ProjectInfo::projectName) + " v" + juce::String(ProjectInfo::versionString);
     g.drawFittedText (text, getLocalBounds().removeFromTop(20).withLeft(6), juce::Justification::left, 1);
+
+    const int consoleHeight = 60;
+    g.setColour(juce::Colours::darkgrey);
+    g.drawRect(getLocalBounds().removeFromBottom(consoleHeight).removeFromTop(1));
 }
 
 void ByteToneAudioProcessorEditor::resized()
 {
+    const int consoleHeight = 60;
     const int headerHeight = 20;
     const int buttonWidth = 40;
     const int comboWidth = 80;
@@ -99,6 +110,7 @@ void ByteToneAudioProcessorEditor::resized()
     auto top = r.removeFromTop(headerHeight);
     runButton.setBounds(top.removeFromRight(buttonWidth));
     sourceSampleRateMenu.setBounds(top.removeFromRight(comboWidth));
+    console.setBounds(r.removeFromBottom(consoleHeight));
     textEditor.setBounds(getLocalBounds().withTop(20));
 }
 
@@ -108,11 +120,24 @@ void ByteToneAudioProcessorEditor::evaluateCode()
         return;
     }
 
-    const int lengthInSamples = sourceSampleRate * 30;
-    const juce::AudioSampleBuffer tempBuffer = generateFromText(code, lengthInSamples);
-    ReferenceCountedBuffer::Ptr newBuffer = resampleBuffer(code, tempBuffer, sourceSampleRate);
-    audioProcessor.setCurrentBuffer(newBuffer);
-    buffers.add(newBuffer);
+    console.setText("");
+
+    try
+    {
+        const int lengthInSamples = sourceSampleRate * 30;
+        const juce::AudioSampleBuffer tempBuffer = generateFromText(code, lengthInSamples);
+        ReferenceCountedBuffer::Ptr newBuffer = resampleBuffer(code, tempBuffer, sourceSampleRate);
+        audioProcessor.setCurrentBuffer(newBuffer);
+        buffers.add(newBuffer);
+    }
+    catch (ParseError& exception)
+    {
+        console.setText(exception.getMessage());
+    }
+    catch (ScanError& exception)
+    {
+        console.setText(exception.getMessage());
+    }
 }
 
 juce::AudioSampleBuffer ByteToneAudioProcessorEditor::generateFromText(juce::String text, int lengthInSamples)

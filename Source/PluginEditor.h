@@ -29,22 +29,18 @@ public:
 
 private:
     void sourceSampleRateChanged();
-
     void checkForBuffersToFree();
-
     void evaluateCode();
-
     juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
     ReferenceCountedBuffer::Ptr resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate);
     float integerToSample(int integer);
 
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     ByteToneAudioProcessor& audioProcessor;
 
     juce::ComboBox sourceSampleRateMenu;
     juce::TextEditor textEditor;
     juce::TextButton runButton;
+    juce::TextEditor console;
 
     Interpreter interpreter;
     

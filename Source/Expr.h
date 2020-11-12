@@ -22,6 +22,22 @@ struct Expr
     virtual T accept(AstVisitor* visitor) const = 0;
 };
 
+struct TernaryConditionalExpr : Expr
+{
+    TernaryConditionalExpr(Expr* cond, Expr* ifBranch, Expr* elseBranch) 
+        : condition(cond), ifExpr(ifBranch), elseExpr(elseBranch) {}
+    virtual ~TernaryConditionalExpr() {}
+
+    T accept(AstVisitor* visitor) const override;
+
+    const std::unique_ptr<Expr> condition;
+    const std::unique_ptr<Expr> ifExpr;
+    const std::unique_ptr<Expr> elseExpr;
+    const Token op;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TernaryConditionalExpr)
+};
+
 struct BinaryExpr : Expr
 {
     BinaryExpr(Expr* l, Token oper, Expr* r) : left(l), op(oper), right(r) {}
@@ -30,7 +46,7 @@ struct BinaryExpr : Expr
     T accept(AstVisitor* visitor) const override;
 
     const std::unique_ptr<Expr> left;
-    const std::unique_ptr <Expr> right;
+    const std::unique_ptr<Expr> right;
     const Token op;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BinaryExpr)

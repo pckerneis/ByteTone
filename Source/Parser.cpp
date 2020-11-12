@@ -18,7 +18,23 @@ Expr* Parser::parse()
 Expr* Parser::expression()
 {
     // TODO: add ternary conditional
-    return bitwiseOr();
+    return ternaryConditional();
+}
+
+Expr* Parser::ternaryConditional()
+{
+    std::unique_ptr<Expr> expr(bitwiseOr());
+
+    if (match(juce::Array<TokenType>(TokenType::CONDITIONAL)))
+    {
+        std::unique_ptr<Expr> ifBranch(bitwiseOr());
+        consume(TokenType::COLON, "Expected ':' after if branch");
+        std::unique_ptr<Expr> elseBranch(bitwiseOr());
+        expr.reset(new TernaryConditionalExpr(expr.release(), ifBranch.release(), elseBranch.release()));
+
+    }
+
+    return expr.release();
 }
 
 Expr* Parser::bitwiseOr()
@@ -204,7 +220,7 @@ Token Parser::consume(TokenType type, juce::String message)
 
 ParseError Parser::error(Token token, juce::String message)
 {
-    return ParseError();
+    return ParseError(message, token);
 }
 
 Token Parser::advance()

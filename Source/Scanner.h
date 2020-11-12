@@ -12,6 +12,24 @@
 
 #include "Token.h"
 
+class ScanError : std::exception
+{
+public:
+    ScanError(juce::String msg, char c, int pos) : message(msg), position(pos), character(c)
+    {
+    }
+
+    juce::String getMessage()
+    {
+        return message + " at [" + juce::String(position) + "]";
+    }
+
+private:
+    juce::String message;
+    char character;
+    int position;
+};
+
 class Scanner {
 public:
     Scanner(juce::String src);
@@ -30,6 +48,9 @@ private:
 
     bool isDigit(char c);
     bool isAtEnd();
+
+
+    ScanError error(juce::String message, char character);
 
     juce::Array<Token> tokens;
     juce::String source;

@@ -16,6 +16,11 @@ T Expr::accept(AstVisitor* visitor) const
     throw std::exception();
 }
 
+T TernaryConditionalExpr::accept(AstVisitor* visitor) const
+{
+    return visitor->visitTernary(*this);
+}
+
 T BinaryExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitBinary(*this);

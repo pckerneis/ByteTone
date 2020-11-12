@@ -42,6 +42,8 @@ void Scanner::scanToken()
     case '^': addToken(TokenType::BITWISE_XOR); break;
     case '~': addToken(TokenType::BITWISE_COMPLEMENT); break;
     case '%': addToken(TokenType::MODULUS); break;
+    case '?': addToken(TokenType::CONDITIONAL); break;
+    case ':': addToken(TokenType::COLON); break;
 
     case '!':
         addToken(match('=') ? TokenType::NOT_EQUAL : TokenType::BANG);
@@ -75,7 +77,7 @@ void Scanner::scanToken()
         }
         else
         {
-            // TODO Show some kind of error
+            throw error("Unexpected character", c);
         }
         break;
     }
@@ -137,4 +139,9 @@ void Scanner::addToken(TokenType type)
 bool Scanner::isAtEnd()
 {
     return current >= source.length();
+}
+
+ScanError Scanner::error(juce::String message, char character)
+{
+    return ScanError(message, character, current);
 }

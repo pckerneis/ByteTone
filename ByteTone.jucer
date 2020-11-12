@@ -32,6 +32,7 @@
         <FILE id="UDFbyK" name="Expr.h" compile="0" resource="0" file="Source/Expr.h"/>
         <FILE id="NnEfrB" name="Interpreter.cpp" compile="1" resource="0" file="Source/Interpreter.cpp"/>
         <FILE id="EuGPGq" name="Interpreter.h" compile="0" resource="0" file="Source/Interpreter.h"/>
+        <FILE id="j6xwJi" name="ParseError.h" compile="0" resource="0" file="Source/ParseError.h"/>
         <FILE id="aGttfA" name="Parser.cpp" compile="1" resource="0" file="Source/Parser.cpp"/>
         <FILE id="vFiJhL" name="Parser.h" compile="0" resource="0" file="Source/Parser.h"/>
         <FILE id="fQv1rQ" name="Scanner.cpp" compile="1" resource="0" file="Source/Scanner.cpp"/>

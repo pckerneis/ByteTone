@@ -19,27 +19,20 @@ class Interpreter : AstVisitor
 public:
     juce::Array<int> generate(const juce::String source, int numSamples)
     {
-        try
+        Scanner scanner(source);
+        Parser parser(scanner.scanTokens());
+        std::unique_ptr<Expr> expr(parser.parse());
+
+        juce::Array<int> output;
+
+        for (int i = 0; i < numSamples; ++i)
         {
-            Scanner scanner(source);
-            Parser parser(scanner.scanTokens());
-            std::unique_ptr<Expr> expr(parser.parse());
-
-            juce::Array<int> output;
-
-            for (int i = 0; i < numSamples; ++i)
-            {
-                t = i;
-                output.add(evaluate(expr.get()));
-            }
-
-
-            return output;
+            t = i;
+            output.add(evaluate(expr.get()));
         }
-        catch (std::exception& exception)
-        {
-            // TODO
-        }
+
+
+        return output;
     }
 
     int evaluate(const Expr* expr)
@@ -50,6 +43,20 @@ public:
     int visitLiteral(const LiteralExpr& expr) override
     {
         return expr.value;
+    }
+
+    int visitTernary(const TernaryConditionalExpr& expr) override
+    {
+        int cond = evaluate(expr.condition.get());
+
+        if (cond)
+        {
+            return evaluate(expr.ifExpr.get());
+        }
+        else
+        {
+            return evaluate(expr.elseExpr.get());
+        }
     }
 
     int visitBinary(const BinaryExpr& expr) override
@@ -83,7 +90,6 @@ public:
 
         return 0;
     }
-
 
     int visitUnary(const UnaryExpr& expr) override
     {

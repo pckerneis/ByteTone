@@ -12,23 +12,20 @@
 
 #include "Token.h"
 
-typedef int T;
-
 class AstVisitor;
 
 struct Expr
 {
     virtual ~Expr() {}
-    virtual T accept(AstVisitor* visitor) const = 0;
+    virtual Var accept(AstVisitor* visitor) const = 0;
 };
 
 struct TernaryConditionalExpr : Expr
 {
-    TernaryConditionalExpr(Expr* cond, Expr* ifBranch, Expr* elseBranch) 
-        : condition(cond), ifExpr(ifBranch), elseExpr(elseBranch) {}
+    TernaryConditionalExpr(Expr* cond, Expr* ifBranch, Expr* elseBranch) : condition(cond), ifExpr(ifBranch), elseExpr(elseBranch) {}
     virtual ~TernaryConditionalExpr() {}
 
-    T accept(AstVisitor* visitor) const override;
+    Var accept(AstVisitor* visitor) const override;
 
     const std::unique_ptr<Expr> condition;
     const std::unique_ptr<Expr> ifExpr;
@@ -40,10 +37,10 @@ struct TernaryConditionalExpr : Expr
 
 struct BinaryExpr : Expr
 {
-    BinaryExpr(Expr* l, Token oper, Expr* r) : left(l), op(oper), right(r) {}
+    BinaryExpr(Expr* l, Token oper, Expr* r) : left(l), right(r), op(oper) {}
     virtual ~BinaryExpr() {}
 
-    T accept(AstVisitor* visitor) const override;
+    Var accept(AstVisitor* visitor) const override;
 
     const std::unique_ptr<Expr> left;
     const std::unique_ptr<Expr> right;
@@ -54,10 +51,10 @@ struct BinaryExpr : Expr
 
 struct UnaryExpr : Expr
 {
-    UnaryExpr(Token oper, Expr* r) : op(oper), right(r) {}
+    UnaryExpr(Token oper, Expr* r) : right(r), op(oper) {}
     virtual ~UnaryExpr() {}
 
-    T accept(AstVisitor* visitor) const override;
+    Var accept(AstVisitor* visitor) const override;
 
     const std::unique_ptr <Expr> right;
     const Token op;
@@ -67,12 +64,12 @@ struct UnaryExpr : Expr
 
 struct LiteralExpr : Expr
 {
-    LiteralExpr(int v) : value(v) {}
+    LiteralExpr(Var v) : value(v) {}
     virtual ~LiteralExpr() {}
 
-    T accept(AstVisitor* visitor) const override;
+    Var accept(AstVisitor* visitor) const override;
 
-    const int value;
+    Var value;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LiteralExpr)
 };
@@ -82,19 +79,40 @@ struct GroupingExpr : Expr
     GroupingExpr(Expr* expr) : expression(expr) {}
     virtual ~GroupingExpr() {}
 
-    T accept(AstVisitor* visitor) const override;
+    Var accept(AstVisitor* visitor) const override;
 
     const std::unique_ptr <Expr> expression;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GroupingExpr)
 };
 
-struct TimeExpr : Expr
+struct IdentifierExpr : Expr
 {
-    TimeExpr() {}
-    virtual ~TimeExpr() {}
+    IdentifierExpr(juce::String n) : name(n) {}
+    virtual ~IdentifierExpr() {}
 
-    T accept(AstVisitor* visitor) const override;
+    Var accept(AstVisitor* visitor) const override;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TimeExpr)
+    juce::String name;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(IdentifierExpr)
+};
+
+struct CallExpr : Expr
+{
+    CallExpr(Expr* calleeExpr, Token parenToken, juce::OwnedArray<Expr>& args) 
+        : callee(calleeExpr), paren(parenToken)
+    {
+        arguments.swapWith(args);
+    }
+
+    virtual ~CallExpr() {}
+
+    Var accept(AstVisitor* visitor) const override;
+
+    const std::unique_ptr <Expr> callee;
+    Token paren;
+    juce::OwnedArray<Expr> arguments;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CallExpr)
 };

@@ -12,10 +12,12 @@
 
 #include <JuceHeader.h>
 
+typedef juce::var Var;
+
 enum class TokenType {
     EOF_,
 
-    T,
+    IDENTIFIER,
 
     NUMBER,
 
@@ -41,18 +43,15 @@ enum class TokenType {
     BITWISE_AND,
     CONDITIONAL,
     COLON,
+    COMMA,
 
     // Not part of restricted C set from source paper
     EQUAL,
     BANG,
 
-    // Strings
-    // Brackets (for char access)
-
-    // Types reserved words
-    // Primitive types for type casting
-
-    // Keywords
+    // Maths
+    SIN,
+    COS
 };
 
 struct Token {
@@ -60,13 +59,13 @@ struct Token {
     {
     }
 
-    Token(TokenType tokenType, int lit, int pos, juce::String lex)
+    Token(TokenType tokenType, Var lit, int pos, juce::String lex)
         : type(tokenType), literal(lit), position(pos), lexeme(lex)
     {
     }
 
     TokenType type;
-    int literal;
+    Var literal;
     int position;
     juce::String lexeme;
 };

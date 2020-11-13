@@ -39,6 +39,7 @@ public:
 private:
     void scanToken();
     void number();
+    void identifier();
     void addToken(TokenType type);
 
     char advance();
@@ -47,8 +48,9 @@ private:
     char peekNext();
 
     bool isDigit(char c);
+    bool isAlpha(char c);
+    bool isAlphaNumeric(char c);
     bool isAtEnd();
-
 
     ScanError error(juce::String message, char character);
 

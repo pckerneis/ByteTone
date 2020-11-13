@@ -15,10 +15,11 @@
 class AstVisitor
 {
 public:
-    virtual int visitLiteral(const LiteralExpr& expr) = 0;
-    virtual int visitUnary(const UnaryExpr& expr) = 0;
-    virtual int visitBinary(const BinaryExpr& expr) = 0;
-    virtual int visitTernary(const TernaryConditionalExpr& expr) = 0;
-    virtual int visitGrouping(const GroupingExpr& expr) = 0;
-    virtual int visitTime(const TimeExpr& expr) = 0;
+    virtual Var visitLiteral(const LiteralExpr& expr) = 0;
+    virtual Var visitUnary(const UnaryExpr& expr) = 0;
+    virtual Var visitBinary(const BinaryExpr& expr) = 0;
+    virtual Var visitTernary(const TernaryConditionalExpr& expr) = 0;
+    virtual Var visitGrouping(const GroupingExpr& expr) = 0;
+    virtual Var visitIdentifier(const IdentifierExpr& expr) = 0;
+    virtual Var visitCall(const CallExpr& expr) = 0;
 };

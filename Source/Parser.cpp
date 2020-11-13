@@ -160,7 +160,45 @@ Expr* Parser::unary()
         return new UnaryExpr(oper, right.release());
     }
 
-    return primary();
+    return call();
+}
+
+Expr* Parser::call()
+{
+    std::unique_ptr<Expr> expr (primary());
+
+    while (true) 
+    {
+        if (match(TokenType::LEFT_PAREN)) 
+        {
+            expr.reset(finishCall(expr.release()));
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return expr.release();
+}
+
+Expr* Parser::finishCall(Expr* callee)
+{
+    juce::OwnedArray<Expr> arguments;
+    std::unique_ptr<Expr> calleePtr(callee);
+
+    
+    if (! match(TokenType::RIGHT_PAREN)) {
+        do
+        {
+            arguments.add(expression());
+        } 
+        while (match(TokenType::COMMA));
+    }
+
+    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments");
+
+    return new CallExpr(calleePtr.release(), paren, arguments);
 }
 
 Expr* Parser::primary()
@@ -170,9 +208,9 @@ Expr* Parser::primary()
         return new LiteralExpr(previous().literal);
     }
 
-    if (match(juce::Array<TokenType>(TokenType::T)))
+    if (match(juce::Array<TokenType>(TokenType::IDENTIFIER)))
     {
-        return new TimeExpr();
+        return new IdentifierExpr(previous().lexeme);
     }
 
     if (match(juce::Array<TokenType>(TokenType::BITWISE_COMPLEMENT)))

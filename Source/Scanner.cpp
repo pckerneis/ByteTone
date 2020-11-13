@@ -44,6 +44,7 @@ void Scanner::scanToken()
     case '%': addToken(TokenType::MODULUS); break;
     case '?': addToken(TokenType::CONDITIONAL); break;
     case ':': addToken(TokenType::COLON); break;
+    case ',': addToken(TokenType::COMMA); break;
 
     case '!':
         addToken(match('=') ? TokenType::NOT_EQUAL : TokenType::BANG);
@@ -69,11 +70,14 @@ void Scanner::scanToken()
     case '\n':
         line++;
         break;
-    case 't': addToken(TokenType::T); break;
     default:
         if (isDigit(c))
         {
             number();
+        }
+        else if (isAlpha(c))
+        {
+            identifier();
         }
         else
         {
@@ -114,12 +118,28 @@ bool Scanner::isDigit(char c)
     return c >= '0' && c <= '9';
 }
 
+bool Scanner::isAlpha(char c)
+{
+    return (c >= 'a' && c <= 'z')
+        || (c >= 'A' && c <= 'Z')
+        || c == '_';
+}
+
+bool Scanner::isAlphaNumeric(char c)
+{
+    return isDigit(c) || isAlpha(c);
+}
+
 void Scanner::number()
 {
     while (isDigit(peek())) advance();
 
+    bool fractionalPart = false;
+
     if (peek() == '.' && isDigit(peekNext()))
     {
+        fractionalPart = true;
+
         advance();
 
         while (isDigit(peek())) advance();
@@ -127,7 +147,17 @@ void Scanner::number()
 
     juce::String text = source.substring(start, current);
     int intValue = std::stoi(text.toStdString());
-    tokens.add(Token(TokenType::NUMBER, intValue, start, text));
+    double doubleValue = std::stod(text.toStdString());
+    tokens.add(Token(TokenType::NUMBER, fractionalPart ? doubleValue : intValue, start, text));
+}
+
+void Scanner::identifier()
+{
+    while (isAlphaNumeric(peek())) advance();
+
+    juce::String text = source.substring(start, current);
+    tokens.add(Token(TokenType::IDENTIFIER, 0, start, text));
+
 }
 
 void Scanner::addToken(TokenType type)

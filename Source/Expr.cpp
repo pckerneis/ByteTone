@@ -11,37 +11,42 @@
 #include "Expr.h"
 #include "AstVisitor.h"
 
-T Expr::accept(AstVisitor* visitor) const
+Var Expr::accept(AstVisitor* visitor) const
 {
     throw std::exception();
 }
 
-T TernaryConditionalExpr::accept(AstVisitor* visitor) const
+Var TernaryConditionalExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitTernary(*this);
 }
 
-T BinaryExpr::accept(AstVisitor* visitor) const
+Var BinaryExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitBinary(*this);
 }
 
-T UnaryExpr::accept(AstVisitor* visitor) const
+Var UnaryExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitUnary(*this);
 }
 
-T LiteralExpr::accept(AstVisitor* visitor) const
+Var LiteralExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitLiteral(*this);
 }
 
-T GroupingExpr::accept(AstVisitor* visitor) const
+Var GroupingExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitGrouping(*this);
 }
 
-T TimeExpr::accept(AstVisitor* visitor) const
+Var IdentifierExpr::accept(AstVisitor* visitor) const
 {
-    return visitor->visitTime(*this);
+    return visitor->visitIdentifier(*this);
+}
+
+Var CallExpr::accept(AstVisitor* visitor) const
+{
+    return visitor->visitCall(*this);
 }

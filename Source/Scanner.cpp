@@ -36,7 +36,6 @@ void Scanner::scanToken()
     case '-': addToken(TokenType::MINUS); break;
     case '+': addToken(TokenType::PLUS); break;
     case '*': addToken(TokenType::STAR); break;
-    case '/': addToken(TokenType::SLASH); break;
     case '&': addToken(TokenType::BITWISE_AND); break;
     case '|': addToken(TokenType::BITWISE_OR); break;
     case '^': addToken(TokenType::BITWISE_XOR); break;
@@ -45,7 +44,16 @@ void Scanner::scanToken()
     case '?': addToken(TokenType::CONDITIONAL); break;
     case ':': addToken(TokenType::COLON); break;
     case ',': addToken(TokenType::COMMA); break;
-
+    case '/':
+        if (match('/'))
+        {
+            while (peek() != '\n' && !isAtEnd()) advance();
+        }
+        else
+        {
+            addToken(TokenType::SLASH);
+        }
+        break;
     case '!':
         addToken(match('=') ? TokenType::NOT_EQUAL : TokenType::BANG);
         break;

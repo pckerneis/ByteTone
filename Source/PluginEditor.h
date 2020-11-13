@@ -18,6 +18,12 @@
 */
 class ByteToneAudioProcessorEditor  : public juce::AudioProcessorEditor, private juce::Thread
 {
+    enum EvaluationMode
+    {
+        BYTE,
+        FLOAT,
+    };
+
 public:
     ByteToneAudioProcessorEditor (ByteToneAudioProcessor&);
     ~ByteToneAudioProcessorEditor() override;
@@ -29,6 +35,7 @@ public:
 
 private:
     void sourceSampleRateChanged();
+    void evaluateModeChanged();
     void checkForBuffersToFree();
     void evaluateCode();
     juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
@@ -38,6 +45,7 @@ private:
     ByteToneAudioProcessor& audioProcessor;
 
     juce::ComboBox sourceSampleRateMenu;
+    juce::ComboBox evaluationModeMenu;
     juce::TextEditor textEditor;
     juce::TextButton runButton;
     juce::TextEditor console;
@@ -50,6 +58,8 @@ private:
 
     juce::String code;
     int sourceSampleRate;
+
+    EvaluationMode evaluationMode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessorEditor)
 };

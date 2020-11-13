@@ -85,13 +85,13 @@ public:
     {
     }
 
-    juce::Array<int> generate(const juce::String source, int numSamples)
+    juce::Array<Var> generate(const juce::String source, int numSamples)
     {
         Scanner scanner(source);
         Parser parser(scanner.scanTokens());
         std::unique_ptr<Expr> expr(parser.parse());
 
-        juce::Array<int> output;
+        juce::Array<Var> output;
 
         for (int i = 0; i < numSamples; ++i)
         {

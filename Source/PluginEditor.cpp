@@ -17,7 +17,8 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     addAndMakeVisible(console);
 
     textEditor.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
-    textEditor.setMultiLine(true);
+    textEditor.setMultiLine(true, true);
+    textEditor.setReturnKeyStartsNewLine(true);
     addAndMakeVisible(textEditor);
 
     textEditor.setText("t * ((t>>12 | t>>9) & (t>>6) & 50)");
@@ -39,6 +40,14 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
 
     sourceSampleRateMenu.onChange = [this] { sourceSampleRateChanged(); };
     sourceSampleRateMenu.setSelectedId(1);
+
+    addAndMakeVisible(evaluationModeMenu);
+
+    evaluationModeMenu.addItem("byte", 1);
+    evaluationModeMenu.addItem("float", 2);
+
+    evaluationModeMenu.onChange = [this] { evaluateModeChanged(); };
+    evaluationModeMenu.setSelectedId(1);
 
     setSize (400, 300);
 
@@ -74,6 +83,18 @@ void ByteToneAudioProcessorEditor::sourceSampleRateChanged()
     evaluateCode();
 }
 
+void ByteToneAudioProcessorEditor::evaluateModeChanged()
+{
+    switch (evaluationModeMenu.getSelectedId())
+    {
+    case 1: evaluationMode = EvaluationMode::BYTE; break;
+    case 2: evaluationMode = EvaluationMode::FLOAT; break;
+    default: break;
+    }
+
+    evaluateCode();
+}
+
 void ByteToneAudioProcessorEditor::checkForBuffersToFree()
 {
     for (auto i = buffers.size(); --i >= 0;)
@@ -102,14 +123,14 @@ void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)
 void ByteToneAudioProcessorEditor::resized()
 {
     const int consoleHeight = 60;
-    const int headerHeight = 20;
+    const int headerHeight = 28;
     const int buttonWidth = 40;
     const int comboWidth = 80;
 
     auto r = getLocalBounds();
     auto top = r.removeFromTop(headerHeight);
     runButton.setBounds(top.removeFromRight(buttonWidth));
-    sourceSampleRateMenu.setBounds(top.removeFromRight(comboWidth));
+    evaluationModeMenu.setBounds(top.removeFromRight(comboWidth));
     console.setBounds(r.removeFromBottom(consoleHeight));
     textEditor.setBounds(getLocalBounds().withTop(20));
 }
@@ -142,15 +163,17 @@ void ByteToneAudioProcessorEditor::evaluateCode()
 
 juce::AudioSampleBuffer ByteToneAudioProcessorEditor::generateFromText(juce::String text, int lengthInSamples)
 {
-    const juce::Array<int> result = interpreter.generate(text, lengthInSamples);
+    const juce::Array<Var> result = interpreter.generate(text, lengthInSamples);
 
     int destSample = 0;
     juce::AudioSampleBuffer tempBuffer(2, lengthInSamples);
+    bool floatMode = evaluationMode == EvaluationMode::FLOAT;
 
-    for (const int integer : result)
+    for (const Var r : result)
     {
-        tempBuffer.setSample(0, destSample, integerToSample(integer));
-        tempBuffer.setSample(1, destSample, integerToSample(integer));
+        float sample = floatMode ? (float)r : integerToSample((int)r);
+        tempBuffer.setSample(0, destSample, sample);
+        tempBuffer.setSample(1, destSample, sample);
         destSample++;
     }
 

@@ -17,109 +17,34 @@
 class Interpreter : AstVisitor
 {
 public:
-    juce::Array<int> generate(const juce::String source, int numSamples)
-    {
-        Scanner scanner(source);
-        Parser parser(scanner.scanTokens());
-        std::unique_ptr<Expr> expr(parser.parse());
+    juce::Array<int> generate(const juce::String source, int numSamples);
 
-        juce::Array<int> output;
+    BaseValue* evaluate(const Expr* expr);
 
-        for (int i = 0; i < numSamples; ++i)
-        {
-            t = i;
-            output.add(evaluate(expr.get()));
-        }
+    BaseValue* visitIntLiteral(const IntLiteralExpr& expr) override;
 
+    BaseValue* visitTernary(const TernaryConditionalExpr& expr) override;
+    
+    BaseValue* visitBinary(const BinaryExpr& expr) override;
 
-        return output;
-    }
+    BaseValue* visitUnary(const UnaryExpr& expr) override;
 
-    int evaluate(const Expr* expr)
-    {
-        return expr->accept(this);
-    }
+    BaseValue* visitGrouping(const GroupingExpr& expr) override;
 
-    int visitLiteral(const LiteralExpr& expr) override
-    {
-        return expr.value;
-    }
+    BaseValue* visitTime(const TimeExpr& expr) override;
 
-    int visitTernary(const TernaryConditionalExpr& expr) override
-    {
-        int cond = evaluate(expr.condition.get());
+    //BaseValue visitCall(const CallExpr& expr) override
+    //{
+    //    Value callee = evaluate(expr.callee);
 
-        if (cond)
-        {
-            return evaluate(expr.ifExpr.get());
-        }
-        else
-        {
-            return evaluate(expr.elseExpr.get());
-        }
-    }
+    //    List<Object> arguments = new ArrayList<>();
+    //    for (Expr argument : expr.arguments) {
+    //        arguments.add(evaluate(argument));
+    //    }
 
-    int visitBinary(const BinaryExpr& expr) override
-    {
-        int left = evaluate(expr.left.get());
-        int right = evaluate(expr.right.get());
-        
-        switch (expr.op.type)
-        {
-        case TokenType::MINUS:              return left - right;
-        case TokenType::SLASH:              return left / right;
-        case TokenType::STAR:               return left * right;
-        case TokenType::PLUS:               return left + right;
-        case TokenType::MODULUS:            return left % right;
-
-        case TokenType::BITWISE_AND:        return left & right;
-        case TokenType::BITWISE_OR:         return left | right;
-        case TokenType::BITWISE_XOR:        return left ^ right;
-
-        case TokenType::BIT_SHIFT_LEFT:     return left << right;
-        case TokenType::BIT_SHIFT_RIGHT:    return left >> right;
-
-        case TokenType::GREATER:            return left > right;
-        case TokenType::GREATER_EQUAL:      return left >= right;
-        case TokenType::LESS:               return left < right;
-        case TokenType::LESS_EQUAL:         return left <= right;
-
-        case TokenType::EQUAL_EQUAL:        return left == right;
-        case TokenType::NOT_EQUAL:          return left != right;
-        }
-
-        return 0;
-    }
-
-    int visitUnary(const UnaryExpr& expr) override
-    {
-        int right = evaluate(expr.right.get());
-
-        switch (expr.op.type)
-        {
-        case TokenType::BANG:
-            return ! right;
-            break;
-        case TokenType::MINUS:
-            return -right;
-            break;
-        case TokenType::BITWISE_COMPLEMENT:
-            return ~right;
-            break;
-        }
-
-        return 0;
-    }
-
-    int visitGrouping(const GroupingExpr& expr) override
-    {
-        return evaluate(expr.expression.get());
-    }
-
-    int visitTime(const TimeExpr& expr) override
-    {
-        return t;
-    }
+    //    LoxCallable function = (LoxCallable)callee;
+    //    return function.call(this, arguments);
+    //}
 
 private:
     int t = 0;

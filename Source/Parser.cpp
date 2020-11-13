@@ -163,11 +163,52 @@ Expr* Parser::unary()
     return primary();
 }
 
+
+Expr* Parser::call()
+{
+    std::unique_ptr<Expr> expr(primary());
+
+    while (true) 
+    {
+        if (match(TokenType::LEFT_PAREN))
+        {
+            expr.reset(finishCall(expr.release()));
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return expr.release();
+}
+
+Expr* Parser::finishCall(Expr* callee)
+{
+    std::unique_ptr<Expr> calleePtr(callee);
+    juce::OwnedArray<Expr> arguments;
+
+    if (!check(TokenType::RIGHT_PAREN))
+    {
+        do 
+        {
+            arguments.add(expression());
+        } 
+        while (match(TokenType::COMMA));
+    }
+
+    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments");
+
+    return nullptr;
+        //new CallExpr(calleePtr.release(), paren, arguments);
+}
+
+
 Expr* Parser::primary()
 {
     if (match(juce::Array<TokenType>(TokenType::NUMBER)))
     {
-        return new LiteralExpr(previous().literal);
+        return new IntLiteralExpr(previous().literal);
     }
 
     if (match(juce::Array<TokenType>(TokenType::T)))

@@ -28,6 +28,7 @@
       </GROUP>
       <GROUP id="{02A68A41-5573-C414-B331-BCE784671A0A}" name="Interpreter">
         <FILE id="rRdIO0" name="AstVisitor.h" compile="0" resource="0" file="Source/AstVisitor.h"/>
+        <FILE id="zYZtYO" name="Callable.h" compile="0" resource="0" file="Source/Callable.h"/>
         <FILE id="xV3L8q" name="Expr.cpp" compile="1" resource="0" file="Source/Expr.cpp"/>
         <FILE id="UDFbyK" name="Expr.h" compile="0" resource="0" file="Source/Expr.h"/>
         <FILE id="NnEfrB" name="Interpreter.cpp" compile="1" resource="0" file="Source/Interpreter.cpp"/>
@@ -38,6 +39,8 @@
         <FILE id="fQv1rQ" name="Scanner.cpp" compile="1" resource="0" file="Source/Scanner.cpp"/>
         <FILE id="tp7bVO" name="Scanner.h" compile="0" resource="0" file="Source/Scanner.h"/>
         <FILE id="V0Z7SC" name="Token.h" compile="0" resource="0" file="Source/Token.h"/>
+        <FILE id="v0KziH" name="Value.cpp" compile="1" resource="0" file="Source/Value.cpp"/>
+        <FILE id="wzS5OH" name="Value.h" compile="0" resource="0" file="Source/Value.h"/>
       </GROUP>
     </GROUP>
   </MAINGROUP>

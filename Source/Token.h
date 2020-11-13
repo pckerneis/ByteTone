@@ -41,18 +41,30 @@ enum class TokenType {
     BITWISE_AND,
     CONDITIONAL,
     COLON,
-
-    // Not part of restricted C set from source paper
-    EQUAL,
+    EQUAL,  // Not interpreted for now...
     BANG,
+    COMMA,
 
     // Strings
     // Brackets (for char access)
 
-    // Types reserved words
-    // Primitive types for type casting
+    // Maths
+    SIN,
+    COS,
+    TAN,
+    POW,
+    PI,
+    E,
+    SQRT,
+    LOG,
+    EXP,
+    ABS,
+    FLOOR,
+    CEIL,
+    MAX,
+    MIN,
 
-    // Keywords
+    // Primitive types for type casting
 };
 
 struct Token {

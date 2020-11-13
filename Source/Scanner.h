@@ -15,7 +15,7 @@
 class ScanError : std::exception
 {
 public:
-    ScanError(juce::String msg, char c, int pos) : message(msg), position(pos), character(c)
+    ScanError(juce::String msg, juce::String txt, int pos) : message(msg), position(pos), text(txt)
     {
     }
 
@@ -26,7 +26,7 @@ public:
 
 private:
     juce::String message;
-    char character;
+    juce::String text;
     int position;
 };
 
@@ -39,6 +39,7 @@ public:
 private:
     void scanToken();
     void number();
+    void identifier();
     void addToken(TokenType type);
 
     char advance();
@@ -47,10 +48,13 @@ private:
     char peekNext();
 
     bool isDigit(char c);
+    bool isAlpha(char c);
+    bool isAlphaNumeric(char c);
     bool isAtEnd();
 
+    juce::HashMap<juce::String, TokenType> nativeFunctions;
 
-    ScanError error(juce::String message, char character);
+    ScanError error(juce::String message, juce::String text);
 
     juce::Array<Token> tokens;
     juce::String source;

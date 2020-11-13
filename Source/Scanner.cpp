@@ -10,7 +10,24 @@
 
 #include "Scanner.h"
 
-Scanner::Scanner(juce::String src) : source(src) {}
+Scanner::Scanner(juce::String src) : source(src) 
+{
+    nativeFunctions.set("abs",   TokenType::ABS);
+    nativeFunctions.set("ceil",  TokenType::CEIL);
+    nativeFunctions.set("cos",   TokenType::COS);
+    nativeFunctions.set("e",     TokenType::E);
+    nativeFunctions.set("exp",   TokenType::EXP);
+    nativeFunctions.set("floor", TokenType::FLOOR);
+    nativeFunctions.set("log",   TokenType::LOG);
+    nativeFunctions.set("max",   TokenType::MAX);
+    nativeFunctions.set("min",   TokenType::MIN);
+    nativeFunctions.set("pi",    TokenType::PI);
+    nativeFunctions.set("pow",   TokenType::POW);
+    nativeFunctions.set("sin",   TokenType::SIN);
+    nativeFunctions.set("sqrt",  TokenType::SQRT);
+    nativeFunctions.set("t",     TokenType::T);
+    nativeFunctions.set("tan",   TokenType::TAN);
+}
 
 juce::Array<Token> Scanner::scanTokens()
 {
@@ -44,6 +61,7 @@ void Scanner::scanToken()
     case '%': addToken(TokenType::MODULUS); break;
     case '?': addToken(TokenType::CONDITIONAL); break;
     case ':': addToken(TokenType::COLON); break;
+    case ',': addToken(TokenType::COMMA); break;
 
     case '!':
         addToken(match('=') ? TokenType::NOT_EQUAL : TokenType::BANG);
@@ -69,15 +87,18 @@ void Scanner::scanToken()
     case '\n':
         line++;
         break;
-    case 't': addToken(TokenType::T); break;
     default:
         if (isDigit(c))
         {
             number();
         }
+        else if (isAlpha(c))
+        {
+            identifier();
+        }
         else
         {
-            throw error("Unexpected character", c);
+            throw error("Unexpected character " + c, juce::String());
         }
         break;
     }
@@ -114,6 +135,17 @@ bool Scanner::isDigit(char c)
     return c >= '0' && c <= '9';
 }
 
+bool Scanner::isAlpha(char c)
+{
+    return (c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        c == '_';
+}
+
+bool Scanner::isAlphaNumeric(char c) {
+    return isAlpha(c) || isDigit(c);
+}
+
 void Scanner::number()
 {
     while (isDigit(peek())) advance();
@@ -130,6 +162,20 @@ void Scanner::number()
     tokens.add(Token(TokenType::NUMBER, intValue, start, text));
 }
 
+void Scanner::identifier()
+{
+    while (isAlphaNumeric(peek())) advance();
+
+    juce::String text = source.substring(start, current);
+
+    if (!nativeFunctions.contains(text))
+    {
+        throw error("Unknown identifier '" + text + "'", text);
+    }
+
+    addToken(nativeFunctions[text]);
+}
+
 void Scanner::addToken(TokenType type)
 {
     juce::String text = source.substring(start, current);
@@ -141,7 +187,7 @@ bool Scanner::isAtEnd()
     return current >= source.length();
 }
 
-ScanError Scanner::error(juce::String message, char character)
+ScanError Scanner::error(juce::String message, juce::String text)
 {
-    return ScanError(message, character, current);
+    return ScanError(message, text, current);
 }

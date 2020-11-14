@@ -57,7 +57,7 @@ public:
     CustomLookAndFeel() : 
         backgroundColour(juce::Colours::black),
         textColour(juce::Colours::limegreen),
-        selectionColour(textColour.withAlpha(0.5f))
+        selectionColour(textColour.withAlpha(0.3f))
     {
         setDefaultSansSerifTypeface(getDefaultTypeface());
 

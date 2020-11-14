@@ -31,7 +31,13 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
             std::make_unique<juce::AudioParameterChoice>("mode",
                                                          "Mode",
                                                          juce::StringArray("byte", "float"),
-                                                         0)
+                                                         0),
+
+            std::make_unique<juce::AudioParameterInt>("note",
+                                                      "Note",
+                                                      0,
+                                                      127,
+                                                      69)
         }),
     synthAudioSource(keyboardState, *this),
     isAddingFromMidiInput(false)
@@ -39,6 +45,7 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
     gain = parameters.getRawParameterValue("gain");
     sampleRate = parameters.getRawParameterValue("sampleRate");
     mode = parameters.getRawParameterValue("mode");
+    note = parameters.getRawParameterValue("note");
 }
 
 ByteToneAudioProcessor::~ByteToneAudioProcessor()
@@ -218,7 +225,7 @@ void ByteToneAudioProcessor::setStateInformation (const void* data, int sizeInBy
 
     if (getCurrentCode().isEmpty())
     {
-        setCurrentCode("t * ((t>>12 | t>>9) & (t>>6) & 50)");
+        setCurrentCode(defaultProgram);
     }
 }
 

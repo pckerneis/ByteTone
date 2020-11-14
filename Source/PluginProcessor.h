@@ -4,12 +4,15 @@
 #include "ReferenceCountedBuffer.h"
 #include "AudioBufferGenerator.h"
 #include "SynthAudioSource.h"
+#include "AudioBufferResampler.h"
 
 //==============================================================================
 /**
 */
 class ByteToneAudioProcessor  : public juce::AudioProcessor
 {
+    juce::String defaultProgram = "t * ((t>>12 | t>>9) & (t>>6) & 50)";
+
 public:
     //==============================================================================
     ByteToneAudioProcessor();
@@ -52,13 +55,9 @@ public:
     void setCurrentBuffer(ReferenceCountedBuffer::Ptr buffer) { currentBuffer = buffer; }
 
     int getSampleRateParamValue() const { return *sampleRate; }
-    void setSampleRateParamValue(int newValue) const { *sampleRate = newValue; }
-
     float getGainParamValue() const { return *gain; }
-    void setGainParamValue(float newValue) const { *gain = newValue; }
-
     int getModeParamValue() const { return *mode; }
-    void setModeParamValue(int newMode) const { *mode = newMode; }
+    int getNoteParamValue() const { return *note; }
 
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
     void setCurrentCode(juce::String code) { getCodeValueTree().setProperty("code", code, parameters.undoManager); }
@@ -81,6 +80,7 @@ private:
     std::atomic<float>* sampleRate = nullptr;
     std::atomic<float>* mode       = nullptr;
     std::atomic<float>* gain       = nullptr;
+    std::atomic<float>* note       = nullptr;
 
     float previousGain;
     double gainRampTime = 0.01;

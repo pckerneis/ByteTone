@@ -59,6 +59,13 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     modeAttachment.reset(new ComboBoxAttachment(p.getParameters(), "mode", modeComboBox));
     addAndMakeVisible(modeComboBox);
 
+    noteLabel.setText("note:", juce::NotificationType::dontSendNotification);
+    addAndMakeVisible(noteLabel);
+
+    noteSlider.setSliderStyle(Slider::LinearBar);
+    noteAttachment.reset(new SliderAttachment(p.getParameters(), "note", noteSlider));
+    addAndMakeVisible(noteSlider);
+
     addAndMakeVisible(keyboardComponent);
 
     setResizable(true, true);
@@ -107,7 +114,9 @@ void ByteToneAudioProcessorEditor::resized()
     const int lineHeight = 28;
     const int consoleHeight = lineHeight;
     const int buttonWidth = 80;
+    const int srWidth = 70;
     const int comboWidth = 80;
+    const int sliderWidth = 50;
     const int keyboardHeight = 80;
 
     const int charW = 12;
@@ -122,11 +131,14 @@ void ByteToneAudioProcessorEditor::resized()
 
     auto secondLine = r.removeFromBottom(lineHeight);
     sampleRateLabel.setBounds(secondLine.removeFromLeft(charW * 3));
-    sampleRateSlider.setBounds(secondLine.removeFromLeft(comboWidth));
-    modeLabel.setBounds(secondLine.removeFromLeft(charW * 5));
+    sampleRateSlider.setBounds(secondLine.removeFromLeft(srWidth));
+    modeLabel.setBounds(secondLine.removeFromLeft(charW * 4));
     modeComboBox.setBounds(secondLine.removeFromLeft(comboWidth));
-    gainLabel.setBounds(secondLine.removeFromLeft(charW * 4));
-    gainSlider.setBounds(secondLine.removeFromLeft(comboWidth));
+    noteLabel.setBounds(secondLine.removeFromLeft(charW * 4));
+    noteSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
+    gainLabel.setBounds(secondLine.removeFromLeft(charW * 3));
+    gainSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
+
     runButton.setBounds(secondLine.removeFromRight(buttonWidth));
 
     console.setBounds(r.removeFromBottom(consoleHeight));

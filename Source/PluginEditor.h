@@ -47,9 +47,13 @@ private:
     juce::ComboBox modeComboBox;
     std::unique_ptr<ComboBoxAttachment> modeAttachment;
 
+    juce::Slider noteSlider;
+    std::unique_ptr<SliderAttachment> noteAttachment;
+
     juce::Label sampleRateLabel;
     juce::Label gainLabel;
     juce::Label modeLabel;
+    juce::Label noteLabel;
 
     juce::TextButton settingsButton;
     juce::TextButton runButton;

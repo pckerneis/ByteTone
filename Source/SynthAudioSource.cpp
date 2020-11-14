@@ -80,21 +80,4 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         if (position == currentAudioSampleBuffer->getNumSamples())
             position = 0;
     }
-
-    //float currentGain = *gain;
-
-    //if (currentGain == previousGain)
-    //{
-    //    bufferToFill.applyGain(currentGain);
-    //}
-    //else
-    //{
-    //    const int rampSamples = juce::jmin((int)(gainRampTime / getSampleRate()), numSamplesToFill);
-    //    bufferToFill.applyGainRamp(0, rampSamples, previousGain, currentGain);
-
-    //    if (rampSamples < numSamplesToFill)
-    //        bufferToFill.applyGain(rampSamples, numSamplesToFill - rampSamples, currentGain);
-
-    //    previousGain = currentGain;
-    //}
 }

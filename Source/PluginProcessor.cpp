@@ -158,6 +158,23 @@ void ByteToneAudioProcessor::processBlock(juce::AudioBuffer<float>& bufferToFill
         bufferToFill.clear(i, 0, numSamplesToFill);
 
     synthAudioSource.renderNextBlock(juce::AudioSourceChannelInfo(&bufferToFill, 0, numSamplesToFill), midiMessages);
+
+    float currentGain = *gain;
+
+    if (currentGain == previousGain)
+    {
+        bufferToFill.applyGain(currentGain);
+    }
+    else
+    {
+        const int rampSamples = juce::jmin((int)(gainRampTime / getSampleRate()), numSamplesToFill);
+        bufferToFill.applyGainRamp(0, rampSamples, previousGain, currentGain);
+
+        if (rampSamples < numSamplesToFill)
+            bufferToFill.applyGain(rampSamples, numSamplesToFill - rampSamples, currentGain);
+
+        previousGain = currentGain;
+    }
 }
 
 //==============================================================================

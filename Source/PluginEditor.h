@@ -9,21 +9,15 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
-#include "Interpreter.h"
 #include "LookAndFeel.h"
+
+typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 
 //==============================================================================
 /**
 */
-class ByteToneAudioProcessorEditor  : public juce::AudioProcessorEditor, private juce::Thread
+class ByteToneAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
-    enum EvaluationMode
-    {
-        BYTE,
-        FLOAT,
-    };
-
 public:
     ByteToneAudioProcessorEditor (ByteToneAudioProcessor&);
     ~ByteToneAudioProcessorEditor() override;
@@ -31,35 +25,26 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-    void run() override;
 
 private:
     void sourceSampleRateChanged();
-    void evaluateModeChanged();
-    void checkForBuffersToFree();
+    void evaluateModeChanged(int mode);
+
     void evaluateCode();
-    juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
-    ReferenceCountedBuffer::Ptr resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate);
-    float integerToSample(int integer);
 
     ByteToneAudioProcessor& audioProcessor;
 
     juce::Slider sampleRateSlider;
+    std::unique_ptr<SliderAttachment> sampleRateAttachment;
     juce::ComboBox evaluationModeMenu;
+
     juce::TextEditor textEditor;
     juce::TextButton runButton;
     juce::TextEditor console;
 
-    Interpreter interpreter;
-    
-    juce::ReferenceCountedArray<ReferenceCountedBuffer> buffers;
-
     CustomLookAndFeel lf;
 
     juce::String code;
-    int sourceSampleRate;
-
-    EvaluationMode evaluationMode;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessorEditor)
 };

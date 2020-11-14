@@ -3,7 +3,7 @@
 
 //==============================================================================
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
-    : AudioProcessorEditor (&p), Thread("BufferReleaseThread"), audioProcessor (p), sourceSampleRate(8000), evaluationMode(BYTE)
+    : AudioProcessorEditor (&p), audioProcessor(p)
 {
     setResizable(true, true);
     setResizeLimits(400, 200, 3000, 3000);
@@ -30,71 +30,48 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     };
     addAndMakeVisible(runButton);
 
-    addAndMakeVisible(sampleRateSlider);
-
     sampleRateSlider.setSliderStyle(Slider::LinearBar);
     sampleRateSlider.setTextValueSuffix("Hz");
-    sampleRateSlider.setRange(juce::Range<double>(1000.0, 88000.0), 1);
-    sampleRateSlider.setValue(8000);
-
+    sampleRateAttachment.reset (new SliderAttachment (p.getParameters(), "sampleRate", sampleRateSlider));
     sampleRateSlider.onDragEnd = [this] { sourceSampleRateChanged(); };
+    addAndMakeVisible(sampleRateSlider);
     // TODO : filter change events
     // sampleRateSlider.onValueChange = [this] { sourceSampleRateChanged(); };
 
-    addAndMakeVisible(evaluationModeMenu);
-
     evaluationModeMenu.addItem("byte", 1);
     evaluationModeMenu.addItem("float", 2);
-
-    evaluationModeMenu.onChange = [this] { evaluateModeChanged(); };
-    evaluationModeMenu.setSelectedId(1);
+    evaluationModeMenu.onChange = [this] { evaluateModeChanged(evaluationModeMenu.getSelectedId() - 1); };
+    evaluationModeMenu.setSelectedId(audioProcessor.getModeParamValue() + 1);
+    addAndMakeVisible(evaluationModeMenu);
 
     setSize (400, 300);
-
-    startThread();
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
 {
-    stopThread(1000);
-}
-
-void ByteToneAudioProcessorEditor::run()
-{
-    while (!threadShouldExit())
-    {
-        checkForBuffersToFree();
-        wait(500);
-    }
 }
 
 void ByteToneAudioProcessorEditor::sourceSampleRateChanged()
 {
-    sourceSampleRate = sampleRateSlider.getValue();
     evaluateCode();
 }
 
-void ByteToneAudioProcessorEditor::evaluateModeChanged()
+void ByteToneAudioProcessorEditor::evaluateModeChanged(int mode)
 {
-    switch (evaluationModeMenu.getSelectedId())
-    {
-    case 1: evaluationMode = EvaluationMode::BYTE; break;
-    case 2: evaluationMode = EvaluationMode::FLOAT; break;
-    default: break;
-    }
-
+    audioProcessor.setModeParamValue(mode);
     evaluateCode();
 }
 
-void ByteToneAudioProcessorEditor::checkForBuffersToFree()
+void ByteToneAudioProcessorEditor::evaluateCode()
 {
-    for (auto i = buffers.size(); --i >= 0;)
-    {
-        ReferenceCountedBuffer::Ptr buffer(buffers.getUnchecked(i));
+    console.setText("Processing...");
 
-        if (buffer->getReferenceCount() == 2)
-            buffers.remove(i);
-    }
+    juce::String error = audioProcessor.getGenerator().evaluateCode(code);
+    
+    if (error.isNotEmpty())
+        console.setText(error);
+    else
+        console.setText("Done.");
 }
 
 void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)
@@ -125,74 +102,4 @@ void ByteToneAudioProcessorEditor::resized()
     sampleRateSlider.setBounds(top.removeFromRight(comboWidth));
     console.setBounds(r.removeFromBottom(consoleHeight));
     textEditor.setBounds(getLocalBounds().withTop(20));
-}
-
-void ByteToneAudioProcessorEditor::evaluateCode()
-{
-    if (code.trim().isEmpty()) {
-        return;
-    }
-
-    console.setText("");
-
-    try
-    {
-        const int lengthInSamples = sourceSampleRate * 30;
-        const juce::AudioSampleBuffer tempBuffer = generateFromText(code, lengthInSamples);
-        ReferenceCountedBuffer::Ptr newBuffer = resampleBuffer(code, tempBuffer, sourceSampleRate);
-        audioProcessor.setCurrentBuffer(newBuffer);
-        buffers.add(newBuffer);
-    }
-    catch (ParseError& exception)
-    {
-        console.setText(exception.getMessage());
-    }
-    catch (ScanError& exception)
-    {
-        console.setText(exception.getMessage());
-    }
-}
-
-juce::AudioSampleBuffer ByteToneAudioProcessorEditor::generateFromText(juce::String text, int lengthInSamples)
-{
-    const juce::Array<Var> result = interpreter.generate(text, lengthInSamples);
-
-    int destSample = 0;
-    juce::AudioSampleBuffer tempBuffer(2, lengthInSamples);
-    bool floatMode = evaluationMode == EvaluationMode::FLOAT;
-
-    for (const Var r : result)
-    {
-        float sample = floatMode ? (float)r : integerToSample((int)r);
-        tempBuffer.setSample(0, destSample, sample);
-        tempBuffer.setSample(1, destSample, sample);
-        destSample++;
-    }
-
-    return tempBuffer;
-}
-
-ReferenceCountedBuffer::Ptr ByteToneAudioProcessorEditor::resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate)
-{
-    double ratio = sourceSampleRate / processor.getSampleRate();
-
-    ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(
-        name, processor.getNumOutputChannels(), buffer.getNumSamples() / ratio);
-
-    float** outputs = newBuffer->getAudioSampleBuffer()->getArrayOfWritePointers();
-    const float** inputs = buffer.getArrayOfReadPointers();
-
-    for (int c = 0; c < newBuffer->getAudioSampleBuffer()->getNumChannels(); c++)
-    {
-        juce::LagrangeInterpolator resampler;
-        resampler.process(ratio, inputs[c], outputs[c], newBuffer->getAudioSampleBuffer()->getNumSamples());
-    }
-
-    return newBuffer;
-}
-
-float ByteToneAudioProcessorEditor::integerToSample(int integer)
-{
-    const int max = 255;
-    return juce::jmap((float)(integer & max), 0.0f, (float)max, -1.0f, 1.0f);
 }

@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "ReferenceCountedBuffer.h"
+#include "AudioBufferGenerator.h"
 
 //==============================================================================
 /**
@@ -56,8 +57,28 @@ public:
 
     void setCurrentBuffer(ReferenceCountedBuffer::Ptr buffer) { currentBuffer = buffer; }
 
+    int getSampleRateParamValue() const { return *sampleRate; }
+    void setSampleRateParamValue(int newValue) const { *sampleRate = newValue; }
+    float getGainParamValue() const { return *gain; }
+    void setGainParamValue(float newValue) const { *gain = newValue; }
+    int getModeParamValue() const { return *mode; }
+    void setModeParamValue(int newMode) const { *mode = newMode; }
+
+    AudioBufferGenerator& getGenerator() { return generator; }
+    juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
+
 private:
+    AudioBufferGenerator generator;
     ReferenceCountedBuffer::Ptr currentBuffer;
+
+    juce::AudioProcessorValueTreeState parameters;
+
+    std::atomic<float>* sampleRate = nullptr;
+    std::atomic<float>* mode       = nullptr;
+    std::atomic<float>* gain       = nullptr;
+
+    float previousGain;
+    double gainRampTime = 0.01;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessor)

@@ -11,17 +11,32 @@
 
 //==============================================================================
 ByteToneAudioProcessor::ByteToneAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
-#endif
+     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
+    generator(*this),
+    previousGain(0),
+    parameters (*this, nullptr, juce::Identifier("APVTSTutorial"),
+        {
+            std::make_unique<juce::AudioParameterFloat>("gain",
+                                                        "Gain",
+                                                        0.0f,
+                                                        1.0f,
+                                                        0.5f),
+
+            std::make_unique<juce::AudioParameterInt>("sampleRate",
+                                                      "Sample rate",
+                                                      1000,
+                                                      100000,
+                                                      8000),
+
+            std::make_unique<juce::AudioParameterChoice>("mode",
+                                                         "Mode",
+                                                         juce::StringArray("byte", "float"),
+                                                         0)
+        })
 {
+    gain = parameters.getRawParameterValue("gain");
+    sampleRate = parameters.getRawParameterValue("sampleRate");
+    mode = parameters.getRawParameterValue("mode");
 }
 
 ByteToneAudioProcessor::~ByteToneAudioProcessor()
@@ -93,8 +108,7 @@ void ByteToneAudioProcessor::changeProgramName (int index, const juce::String& n
 //==============================================================================
 void ByteToneAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    previousGain = *gain;
 }
 
 void ByteToneAudioProcessor::releaseResources()
@@ -174,6 +188,19 @@ void ByteToneAudioProcessor::processBlock (juce::AudioBuffer<float>& bufferToFil
             position = 0;
     }
 
+    float currentGain = *gain;
+
+    if (currentGain == previousGain)
+    {
+        bufferToFill.applyGain(currentGain);
+    }
+    else
+    {
+        const int rampSamples = juce::jmin((int)(gainRampTime / getSampleRate()), bufferToFill.getNumSamples());
+        bufferToFill.applyGainRamp(0, rampSamples, previousGain, currentGain);
+        previousGain = currentGain;
+    }
+
     retainedCurrentBuffer->position = position;
 }
 
@@ -191,15 +218,18 @@ juce::AudioProcessorEditor* ByteToneAudioProcessor::createEditor()
 //==============================================================================
 void ByteToneAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = parameters.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void ByteToneAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(parameters.state.getType()))
+            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
 //==============================================================================

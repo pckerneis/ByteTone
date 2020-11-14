@@ -28,6 +28,10 @@
       </GROUP>
       <GROUP id="{02A68A41-5573-C414-B331-BCE784671A0A}" name="Interpreter">
         <FILE id="rRdIO0" name="AstVisitor.h" compile="0" resource="0" file="Source/AstVisitor.h"/>
+        <FILE id="ritS8x" name="AudioBufferGenerator.cpp" compile="1" resource="0"
+              file="Source/AudioBufferGenerator.cpp"/>
+        <FILE id="YZXN2d" name="AudioBufferGenerator.h" compile="0" resource="0"
+              file="Source/AudioBufferGenerator.h"/>
         <FILE id="xV3L8q" name="Expr.cpp" compile="1" resource="0" file="Source/Expr.cpp"/>
         <FILE id="UDFbyK" name="Expr.h" compile="0" resource="0" file="Source/Expr.h"/>
         <FILE id="NnEfrB" name="Interpreter.cpp" compile="1" resource="0" file="Source/Interpreter.cpp"/>

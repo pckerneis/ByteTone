@@ -44,7 +44,5 @@ private:
 
     CustomLookAndFeel lf;
 
-    juce::String code;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessorEditor)
 };

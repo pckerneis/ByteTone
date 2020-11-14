@@ -21,8 +21,10 @@ AudioBufferGenerator::~AudioBufferGenerator()
     stopThread(1000);
 }
 
-juce::String AudioBufferGenerator::evaluateCode(juce::String code)
+juce::String AudioBufferGenerator::evaluateCode()
 {
+    const juce::String code(audioProcessor.getCurrentCode());
+
     if (code.trim().isEmpty())
     {
         return "Source code is empty.";

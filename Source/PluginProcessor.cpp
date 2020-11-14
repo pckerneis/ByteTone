@@ -230,6 +230,13 @@ void ByteToneAudioProcessor::setStateInformation (const void* data, int sizeInBy
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(parameters.state.getType()))
             parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
+
+    auto codeValueTree = parameters.state.getOrCreateChildWithName("CODE", parameters.undoManager);
+
+    if (getCurrentCode().isEmpty())
+    {
+        setCurrentCode("t * ((t>>12 | t>>9) & (t>>6) & 50)");
+    }
 }
 
 //==============================================================================

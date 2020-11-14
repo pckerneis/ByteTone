@@ -29,7 +29,7 @@ public:
     ~AudioBufferGenerator();
 
     void checkForBuffersToFree();
-    juce::String evaluateCode(juce::String code);
+    juce::String evaluateCode();
     juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
     ReferenceCountedBuffer::Ptr resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate);
 

@@ -21,11 +21,11 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     textEditor.setReturnKeyStartsNewLine(true);
     addAndMakeVisible(textEditor);
 
-    textEditor.setText("t * ((t>>12 | t>>9) & (t>>6) & 50)");
+    textEditor.setText(p.getCurrentCode());
 
     runButton.setButtonText("Run");
-    runButton.onClick = [this] { 
-        code = textEditor.getText();
+    runButton.onClick = [this, &p] { 
+        p.setCurrentCode(textEditor.getText());
         evaluateCode();
     };
     addAndMakeVisible(runButton);
@@ -66,7 +66,7 @@ void ByteToneAudioProcessorEditor::evaluateCode()
 {
     console.setText("Processing...");
 
-    juce::String error = audioProcessor.getGenerator().evaluateCode(code);
+    juce::String error = audioProcessor.getGenerator().evaluateCode();
     
     if (error.isNotEmpty())
         console.setText(error);

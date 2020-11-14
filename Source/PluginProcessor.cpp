@@ -143,11 +143,12 @@ bool ByteToneAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 void ByteToneAudioProcessor::processBlock (juce::AudioBuffer<float>& bufferToFill, juce::MidiBuffer& midiMessages)
 {
+    const int numSamplesToFill = bufferToFill.getNumSamples();
     juce::ScopedNoDenormals noDenormals;
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = 0; i < totalNumOutputChannels; ++i)
-        bufferToFill.clear (i, 0, bufferToFill.getNumSamples());
+        bufferToFill.clear (i, 0, numSamplesToFill);
 
     ReferenceCountedBuffer::Ptr retainedCurrentBuffer(currentBuffer);
 
@@ -162,7 +163,7 @@ void ByteToneAudioProcessor::processBlock (juce::AudioBuffer<float>& bufferToFil
     auto numInputChannels = currentAudioSampleBuffer->getNumChannels();
     auto numOutputChannels = bufferToFill.getNumChannels();
 
-    auto outputSamplesRemaining = bufferToFill.getNumSamples();
+    int outputSamplesRemaining = numSamplesToFill;
     auto outputSamplesOffset = 0;
 
     while (outputSamplesRemaining > 0)
@@ -196,8 +197,12 @@ void ByteToneAudioProcessor::processBlock (juce::AudioBuffer<float>& bufferToFil
     }
     else
     {
-        const int rampSamples = juce::jmin((int)(gainRampTime / getSampleRate()), bufferToFill.getNumSamples());
+        const int rampSamples = juce::jmin((int)(gainRampTime / getSampleRate()), numSamplesToFill);
         bufferToFill.applyGainRamp(0, rampSamples, previousGain, currentGain);
+
+        if (rampSamples < numSamplesToFill)
+            bufferToFill.applyGain(rampSamples, numSamplesToFill - rampSamples, currentGain);
+
         previousGain = currentGain;
     }
 

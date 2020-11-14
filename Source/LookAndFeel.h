@@ -151,4 +151,18 @@ public:
                 0, 0, button.getWidth(), button.getHeight(),
                 Justification::centred, false);
     }
+
+    Label* createSliderTextBox(Slider& slider) override
+    {
+        auto* l = LookAndFeel_V2::createSliderTextBox(slider);
+
+        if (getCurrentColourScheme() == LookAndFeel_V4::getGreyColourScheme() && (slider.getSliderStyle() == Slider::LinearBar
+            || slider.getSliderStyle() == Slider::LinearBarVertical))
+        {
+            // l->setColour(Label::textColourId, Colours::black.withAlpha(0.7f));
+        }
+        l->setJustificationType(juce::Justification::centredLeft);
+
+        return l;
+    }
 };

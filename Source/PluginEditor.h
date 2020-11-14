@@ -12,6 +12,7 @@
 #include "LookAndFeel.h"
 
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
+typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
 
 //==============================================================================
 /**
@@ -27,19 +28,25 @@ public:
     void resized() override;
 
 private:
-    void sourceSampleRateChanged();
-    void evaluateModeChanged(int mode);
-
     void evaluateCode();
 
     ByteToneAudioProcessor& audioProcessor;
 
     juce::Slider sampleRateSlider;
     std::unique_ptr<SliderAttachment> sampleRateAttachment;
-    juce::ComboBox evaluationModeMenu;
 
-    juce::TextEditor textEditor;
+    juce::Slider gainSlider;
+    std::unique_ptr<SliderAttachment> gainAttachment;
+
+    juce::ComboBox modeComboBox;
+    std::unique_ptr<ComboBoxAttachment> modeAttachment;
+
+    juce::Label sampleRateLabel;
+    juce::Label gainLabel;
+    juce::Label modeLabel;
+
     juce::TextButton runButton;
+    juce::TextEditor textEditor;
     juce::TextEditor console;
 
     CustomLookAndFeel lf;

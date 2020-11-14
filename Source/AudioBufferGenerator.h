@@ -25,10 +25,18 @@ class AudioBufferGenerator : public juce::Thread
     };
 
 public:
+    typedef std::function<void(juce::String)> CallbackFunction;
+
     AudioBufferGenerator(ByteToneAudioProcessor& p);
     ~AudioBufferGenerator();
 
+    void setCallback(CallbackFunction cb) { callback = cb; }
+    void generate() { shouldGenerate = true; }
+
+private:
     void checkForBuffersToFree();
+    void checkForCodeToEvaluate();
+
     juce::String evaluateCode();
     juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
     ReferenceCountedBuffer::Ptr resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate);
@@ -36,9 +44,12 @@ public:
     float integerToSample(int integer);
     
     void run() override;
-private:
+
     ByteToneAudioProcessor& audioProcessor;
     Interpreter interpreter;
+
+    std::atomic<bool> shouldGenerate;
+    std::function<void(juce::String)> callback;
 
     juce::ReferenceCountedArray<ReferenceCountedBuffer> buffers;
 };

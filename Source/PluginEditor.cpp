@@ -45,6 +45,8 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     addAndMakeVisible(evaluationModeMenu);
 
     setSize (400, 300);
+
+    audioProcessor.getGenerator().setCallback([this](juce::String msg) { console.setText(msg); });
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
@@ -65,13 +67,7 @@ void ByteToneAudioProcessorEditor::evaluateModeChanged(int mode)
 void ByteToneAudioProcessorEditor::evaluateCode()
 {
     console.setText("Processing...");
-
-    juce::String error = audioProcessor.getGenerator().evaluateCode();
-    
-    if (error.isNotEmpty())
-        console.setText(error);
-    else
-        console.setText("Done.");
+    audioProcessor.getGenerator().generate();
 }
 
 void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)

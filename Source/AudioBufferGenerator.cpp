@@ -11,7 +11,7 @@
 #include "AudioBufferGenerator.h"
 #include "PluginProcessor.h"
 
-AudioBufferGenerator::AudioBufferGenerator(ByteToneAudioProcessor& p) : Thread("AudioBufferGenerator"), audioProcessor(p)
+AudioBufferGenerator::AudioBufferGenerator(ByteToneAudioProcessor& p) : Thread("AudioBufferGenerator"), audioProcessor(p), shouldGenerate(false)
 {
     startThread();
 }
@@ -39,7 +39,7 @@ juce::String AudioBufferGenerator::evaluateCode()
         audioProcessor.setCurrentBuffer(newBuffer);
         buffers.add(newBuffer);
 
-        return juce::String();
+        return "Done.";
     }
     catch (ParseError& exception)
     {
@@ -100,6 +100,7 @@ void AudioBufferGenerator::run()
 {
     while (!threadShouldExit())
     {
+        checkForCodeToEvaluate();
         checkForBuffersToFree();
         wait(500);
     }
@@ -113,5 +114,15 @@ void AudioBufferGenerator::checkForBuffersToFree()
 
         if (buffer->getReferenceCount() == 2)
             buffers.remove(i);
+    }
+}
+
+void AudioBufferGenerator::checkForCodeToEvaluate()
+{
+    if (shouldGenerate)
+    {
+        juce::String result = evaluateCode();
+        juce::MessageManager::callAsync([=]() { callback(result); });
+        shouldGenerate = false;
     }
 }

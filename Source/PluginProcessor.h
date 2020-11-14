@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
@@ -55,24 +47,28 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
     void setCurrentBuffer(ReferenceCountedBuffer::Ptr buffer) { currentBuffer = buffer; }
 
     int getSampleRateParamValue() const { return *sampleRate; }
     void setSampleRateParamValue(int newValue) const { *sampleRate = newValue; }
+
     float getGainParamValue() const { return *gain; }
     void setGainParamValue(float newValue) const { *gain = newValue; }
+
     int getModeParamValue() const { return *mode; }
     void setModeParamValue(int newMode) const { *mode = newMode; }
+
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
     void setCurrentCode(juce::String code) { getCodeValueTree().setProperty("code", code, parameters.undoManager); }
-
-    juce::ValueTree getCodeValueTree() { return parameters.state.getChildWithName("CODE"); }
-    juce::ValueTree getCodeValueTree() const { return parameters.state.getChildWithName("CODE"); }
 
     AudioBufferGenerator& getGenerator() { return generator; }
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
 
 private:
+    juce::ValueTree getCodeValueTree() { return parameters.state.getChildWithName("CODE"); }
+    juce::ValueTree getCodeValueTree() const { return parameters.state.getChildWithName("CODE"); }
+
     AudioBufferGenerator generator;
     ReferenceCountedBuffer::Ptr currentBuffer;
 

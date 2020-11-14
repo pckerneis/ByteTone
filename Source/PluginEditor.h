@@ -28,6 +28,8 @@ public:
     void resized() override;
 
 private:
+    void openSettings();
+
     void evaluateCode();
 
     ByteToneAudioProcessor& audioProcessor;
@@ -45,9 +47,13 @@ private:
     juce::Label gainLabel;
     juce::Label modeLabel;
 
+    juce::TextButton settingsButton;
     juce::TextButton runButton;
     juce::TextEditor textEditor;
     juce::TextEditor console;
+
+    juce::MidiKeyboardState keyboardState;
+    juce::MidiKeyboardComponent keyboardComponent;
 
     CustomLookAndFeel lf;
 

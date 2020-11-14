@@ -3,7 +3,7 @@
 <JUCERPROJECT id="RyLK3Q" name="ByteTone" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
               pluginVST3Category="Instrument" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
-              version="0.0.1">
+              version="0.0.1" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1">
   <MAINGROUP id="FDAVOO" name="ByteTone">
     <GROUP id="{2F9870A4-9B2D-F58C-B58A-C5E5F9AD4A00}" name="Assets">
       <FILE id="cdBidz" name="Consolas.ttf" compile="0" resource="1" file="Assets/Consolas.ttf"/>
@@ -15,6 +15,10 @@
         <FILE id="L7ZbPT" name="PluginEditor.cpp" compile="1" resource="0"
               file="Source/PluginEditor.cpp"/>
         <FILE id="j5yB82" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+        <FILE id="XvEyAK" name="StandaloneWindow.cpp" compile="1" resource="0"
+              file="Source/StandaloneWindow.cpp"/>
+        <FILE id="adIpRD" name="StandaloneWindow.h" compile="0" resource="0"
+              file="Source/StandaloneWindow.h"/>
       </GROUP>
       <GROUP id="{C46DA32B-3B29-14A3-FE17-80A85ED2AF2B}" name="Audio">
         <FILE id="O5E5KU" name="ReferenceCountedBuffer.cpp" compile="1" resource="0"

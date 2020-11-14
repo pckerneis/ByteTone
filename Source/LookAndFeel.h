@@ -17,7 +17,8 @@ using namespace juce;
 class CustomCaretComponent : public CaretComponent, private Timer
 {
 public:
-    CustomCaretComponent(Component* keyFocusOwner) : CaretComponent(keyFocusOwner), owner(keyFocusOwner)
+    CustomCaretComponent(Component* keyFocusOwner) : CaretComponent(keyFocusOwner),
+        owner(keyFocusOwner)
     {}
 
     void setCaretPosition(const Rectangle<int>& characterArea) override
@@ -53,38 +54,53 @@ private:
 class CustomLookAndFeel : public LookAndFeel_V4
 {
 public:
-    CustomLookAndFeel()
+    CustomLookAndFeel() : 
+        backgroundColour(juce::Colours::black),
+        textColour(juce::Colours::limegreen),
+        selectionColour(textColour.withAlpha(0.5f))
     {
         setDefaultSansSerifTypeface(getDefaultTypeface());
 
-        setColour(TextEditor::backgroundColourId, Colours::transparentBlack);
+        setColour(TextEditor::backgroundColourId, backgroundColour);
         setColour(TextEditor::outlineColourId, Colours::transparentBlack);
         setColour(TextEditor::focusedOutlineColourId, Colours::transparentBlack);
-        setColour(TextEditor::highlightColourId, Colours::white);
-        setColour(TextEditor::highlightedTextColourId, Colours::black);
+        setColour(TextEditor::highlightColourId, textColour);
+        setColour(TextEditor::highlightedTextColourId, backgroundColour);
+        setColour(TextEditor::textColourId, textColour);
 
-        setColour(CaretComponent::caretColourId, Colours::white);
+        setColour(CaretComponent::caretColourId, textColour);
 
-        setColour(ResizableWindow::backgroundColourId, Colours::black);
+        setColour(ResizableWindow::backgroundColourId, backgroundColour);
 
-        setColour(PopupMenu::backgroundColourId, Colours::black);
+        setColour(PopupMenu::backgroundColourId, backgroundColour);
+        setColour(PopupMenu::textColourId, textColour);
+        setColour(PopupMenu::highlightedBackgroundColourId, textColour);
+        setColour(PopupMenu::highlightedTextColourId, backgroundColour);
 
-        setColour(TextButton::buttonColourId, Colours::black);
-        setColour(TextButton::textColourOnId, Colours::white);
+        setColour(TextButton::buttonColourId, backgroundColour);
+        setColour(TextButton::textColourOnId, textColour);
+        setColour(TextButton::textColourOffId, textColour);
 
-        setColour(ComboBox::textColourId, Colours::white);
+        setColour(ComboBox::textColourId, textColour);
         setColour(ComboBox::outlineColourId, Colours::transparentBlack);
-        setColour(ComboBox::arrowColourId, Colours::white);
+        setColour(ComboBox::arrowColourId, textColour);
         setColour(ComboBox::focusedOutlineColourId, Colours::transparentBlack);
         setColour(ComboBox::buttonColourId, Colours::transparentBlack);
         setColour(ComboBox::backgroundColourId, Colours::transparentBlack);
 
         setColour(Slider::textBoxOutlineColourId, Colours::transparentBlack);
         setColour(Slider::backgroundColourId, Colours::transparentBlack);
+        setColour(Slider::textBoxTextColourId, textColour);
+        setColour(Slider::textBoxHighlightColourId, textColour);
+        setColour(Slider::trackColourId, selectionColour);
 
         // setColour(Label::backgroundWhenEditingColourId, Colours::transparentBlack);
+        setColour(Label::textColourId, textColour);
+        setColour(Label::backgroundWhenEditingColourId, backgroundColour);
+        setColour(Label::textWhenEditingColourId, textColour);
 
-        
+        setColour(ListBox::backgroundColourId, backgroundColour);
+        setColour(ListBox::textColourId, textColour);
     }
 
     int getDefaultFontHeight() const
@@ -165,4 +181,55 @@ public:
 
         return l;
     }
+
+    void drawButtonBackground(Graphics& g,
+        Button& button,
+        const Colour& backgroundColour,
+        bool shouldDrawButtonAsHighlighted,
+        bool shouldDrawButtonAsDown)
+    {
+        auto cornerSize = 0.0f;
+        auto bounds = button.getLocalBounds().toFloat().reduced(0.5f, 0.5f);
+
+        auto baseColour = backgroundColour.withMultipliedSaturation(button.hasKeyboardFocus(true) ? 1.3f : 0.9f)
+            .withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f);
+
+        if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+            baseColour = selectionColour.withMultipliedAlpha(shouldDrawButtonAsDown ? 1.0f : 0.55f);
+
+        g.setColour(baseColour);
+
+        auto flatOnLeft = button.isConnectedOnLeft();
+        auto flatOnRight = button.isConnectedOnRight();
+        auto flatOnTop = button.isConnectedOnTop();
+        auto flatOnBottom = button.isConnectedOnBottom();
+
+        if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom)
+        {
+            Path path;
+            path.addRoundedRectangle(bounds.getX(), bounds.getY(),
+                bounds.getWidth(), bounds.getHeight(),
+                cornerSize, cornerSize,
+                !(flatOnLeft || flatOnTop),
+                !(flatOnRight || flatOnTop),
+                !(flatOnLeft || flatOnBottom),
+                !(flatOnRight || flatOnBottom));
+
+            g.fillPath(path);
+
+            g.setColour(button.findColour(ComboBox::outlineColourId));
+            g.strokePath(path, PathStrokeType(1.0f));
+        }
+        else
+        {
+            g.fillRoundedRectangle(bounds, cornerSize);
+
+            g.setColour(button.findColour(ComboBox::outlineColourId));
+            g.drawRoundedRectangle(bounds, cornerSize, 1.0f);
+        }
+    }
+
+    juce::Colour backgroundColour;
+    juce::Colour textColour;
+    juce::Colour selectionColour;
 };

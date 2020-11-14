@@ -14,7 +14,7 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
      : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
     generator(*this),
     previousGain(0),
-    parameters (*this, nullptr, juce::Identifier("APVTSTutorial"),
+    parameters (*this, nullptr, juce::Identifier("ByteToneAudioProcessor"),
         {
             std::make_unique<juce::AudioParameterFloat>("gain",
                                                         "Gain",
@@ -212,12 +212,22 @@ void ByteToneAudioProcessor::processBlock (juce::AudioBuffer<float>& bufferToFil
 //==============================================================================
 bool ByteToneAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* ByteToneAudioProcessor::createEditor()
 {
-    return new ByteToneAudioProcessorEditor (*this);
+    auto editor = new ByteToneAudioProcessorEditor (*this);
+
+    if (wrapperType == wrapperType_Standalone)
+    {
+        if (TopLevelWindow::getNumTopLevelWindows() == 1)
+        {
+            TopLevelWindow* w = TopLevelWindow::getTopLevelWindow(0);
+            w->setUsingNativeTitleBar(true);
+        }
+    }
+    return editor;
 }
 
 //==============================================================================

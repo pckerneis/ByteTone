@@ -3,11 +3,10 @@
 
 //==============================================================================
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor(p)
+    : AudioProcessorEditor (&p),
+    audioProcessor(p),
+    keyboardComponent(keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
-    setResizable(true, true);
-    setResizeLimits(400, 200, 3000, 3000);
-
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
     console.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
@@ -22,6 +21,12 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     addAndMakeVisible(textEditor);
 
     textEditor.setText(p.getCurrentCode());
+
+    settingsButton.setButtonText("Settings");
+    settingsButton.onClick = [this, &p] {
+        openSettings();
+    };
+    addAndMakeVisible(settingsButton);
 
     runButton.setButtonText("Compile");
     runButton.onClick = [this, &p] { 
@@ -53,13 +58,28 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     modeAttachment.reset(new ComboBoxAttachment(p.getParameters(), "mode", modeComboBox));
     addAndMakeVisible(modeComboBox);
 
-    setSize (400, 300);
+    addAndMakeVisible(keyboardComponent);
+
+    setResizable(true, true);
+    setResizeLimits(500, 200, 3000, 3000);
+    setSize (500, 400);
 
     audioProcessor.getGenerator().setCallback([this](juce::String msg) { console.setText(msg); });
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
 {
+}
+
+#include "StandaloneWindow.h"
+
+void ByteToneAudioProcessorEditor::openSettings()
+{
+    if (JUCEApplication::isStandaloneApp())
+    {
+        if (auto app = dynamic_cast<StandaloneFilterApp*>(JUCEApplication::getInstance()))
+            app->openSettings();
+    }
 }
 
 void ByteToneAudioProcessorEditor::evaluateCode()
@@ -70,9 +90,9 @@ void ByteToneAudioProcessorEditor::evaluateCode()
 
 void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::black);
+    g.fillAll (lf.backgroundColour);
 
-    g.setColour (juce::Colours::white);
+    g.setColour (lf.textColour);
     g.setFont (lf.getDefaultFontHeight());
     const juce::String text = juce::String(ProjectInfo::projectName);
     g.drawFittedText (text, getLocalBounds().removeFromTop(28).withLeft(6), juce::Justification::left, 1);
@@ -84,12 +104,17 @@ void ByteToneAudioProcessorEditor::resized()
     const int consoleHeight = lineHeight;
     const int buttonWidth = 80;
     const int comboWidth = 80;
+    const int keyboardHeight = 80;
 
     const int charW = 12;
 
     auto r = getLocalBounds();
     auto firstLine = r.removeFromTop(lineHeight);
-    runButton.setBounds(firstLine.removeFromRight(buttonWidth));
+
+    if (JUCEApplication::isStandaloneApp())
+        settingsButton.setBounds(firstLine.removeFromRight(buttonWidth));
+
+    keyboardComponent.setBounds(r.removeFromBottom(keyboardHeight));
 
     auto secondLine = r.removeFromBottom(lineHeight);
     sampleRateLabel.setBounds(secondLine.removeFromLeft(charW * 3));
@@ -98,6 +123,7 @@ void ByteToneAudioProcessorEditor::resized()
     modeComboBox.setBounds(secondLine.removeFromLeft(comboWidth));
     gainLabel.setBounds(secondLine.removeFromLeft(charW * 4));
     gainSlider.setBounds(secondLine.removeFromLeft(comboWidth));
+    runButton.setBounds(secondLine.removeFromRight(buttonWidth));
 
     console.setBounds(r.removeFromBottom(consoleHeight));
 

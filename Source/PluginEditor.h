@@ -44,7 +44,7 @@ private:
 
     ByteToneAudioProcessor& audioProcessor;
 
-    juce::ComboBox sourceSampleRateMenu;
+    juce::Slider sampleRateSlider;
     juce::ComboBox evaluationModeMenu;
     juce::TextEditor textEditor;
     juce::TextButton runButton;

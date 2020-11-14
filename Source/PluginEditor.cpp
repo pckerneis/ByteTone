@@ -3,7 +3,7 @@
 
 //==============================================================================
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
-    : AudioProcessorEditor (&p), Thread("BufferReleaseThread"), audioProcessor (p)
+    : AudioProcessorEditor (&p), Thread("BufferReleaseThread"), audioProcessor (p), sourceSampleRate(8000), evaluationMode(BYTE)
 {
     setResizable(true, true);
     setResizeLimits(400, 200, 3000, 3000);
@@ -30,16 +30,16 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     };
     addAndMakeVisible(runButton);
 
-    addAndMakeVisible(sourceSampleRateMenu);
+    addAndMakeVisible(sampleRateSlider);
 
-    sourceSampleRateMenu.addItem("8kHz", 1);
-    sourceSampleRateMenu.addItem("11kHz", 2);
-    sourceSampleRateMenu.addItem("22kHz", 3);
-    sourceSampleRateMenu.addItem("32kHz", 4);
-    sourceSampleRateMenu.addItem("44kHz", 5);
+    sampleRateSlider.setSliderStyle(Slider::LinearBar);
+    sampleRateSlider.setTextValueSuffix("Hz");
+    sampleRateSlider.setRange(juce::Range<double>(1000.0, 88000.0), 1);
+    sampleRateSlider.setValue(8000);
 
-    sourceSampleRateMenu.onChange = [this] { sourceSampleRateChanged(); };
-    sourceSampleRateMenu.setSelectedId(1);
+    sampleRateSlider.onDragEnd = [this] { sourceSampleRateChanged(); };
+    // TODO : filter change events
+    // sampleRateSlider.onValueChange = [this] { sourceSampleRateChanged(); };
 
     addAndMakeVisible(evaluationModeMenu);
 
@@ -70,16 +70,7 @@ void ByteToneAudioProcessorEditor::run()
 
 void ByteToneAudioProcessorEditor::sourceSampleRateChanged()
 {
-    switch (sourceSampleRateMenu.getSelectedId())
-    {
-        case 1: sourceSampleRate = 8000; break;
-        case 2: sourceSampleRate = 11000; break;
-        case 3: sourceSampleRate = 22000; break;
-        case 4: sourceSampleRate = 32000; break;
-        case 5: sourceSampleRate = 44000; break;
-        default: break;
-    }
-
+    sourceSampleRate = sampleRateSlider.getValue();
     evaluateCode();
 }
 
@@ -131,6 +122,7 @@ void ByteToneAudioProcessorEditor::resized()
     auto top = r.removeFromTop(headerHeight);
     runButton.setBounds(top.removeFromRight(buttonWidth));
     evaluationModeMenu.setBounds(top.removeFromRight(comboWidth));
+    sampleRateSlider.setBounds(top.removeFromRight(comboWidth));
     console.setBounds(r.removeFromBottom(consoleHeight));
     textEditor.setBounds(getLocalBounds().withTop(20));
 }

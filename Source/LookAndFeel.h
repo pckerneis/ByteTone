@@ -78,6 +78,13 @@ public:
         setColour(ComboBox::focusedOutlineColourId, Colours::transparentBlack);
         setColour(ComboBox::buttonColourId, Colours::transparentBlack);
         setColour(ComboBox::backgroundColourId, Colours::transparentBlack);
+
+        setColour(Slider::textBoxOutlineColourId, Colours::transparentBlack);
+        setColour(Slider::backgroundColourId, Colours::transparentBlack);
+
+        // setColour(Label::backgroundWhenEditingColourId, Colours::transparentBlack);
+
+        
     }
 
     int getDefaultFontHeight() const

@@ -36,8 +36,6 @@ public:
         return &buffer;
     }
 
-    int position = 0;
-
 private:
     juce::String name;
     juce::AudioSampleBuffer buffer;

@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "ReferenceCountedBuffer.h"
 #include "AudioBufferGenerator.h"
+#include "SynthAudioSource.h"
 
 //==============================================================================
 /**
@@ -64,6 +65,9 @@ public:
 
     AudioBufferGenerator& getGenerator() { return generator; }
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
+    juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
+    bool addingFromMidiInput() const { return isAddingFromMidiInput; }
+    ReferenceCountedBuffer::Ptr getCurrentBuffer() const { return currentBuffer; }
 
 private:
     juce::ValueTree getCodeValueTree() { return parameters.state.getChildWithName("CODE"); }
@@ -80,6 +84,11 @@ private:
 
     float previousGain;
     double gainRampTime = 0.01;
+
+    juce::MidiKeyboardState keyboardState;
+    SynthAudioSource synthAudioSource;
+
+    bool isAddingFromMidiInput;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessor)

@@ -17,7 +17,8 @@ typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachmen
 //==============================================================================
 /**
 */
-class ByteToneAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ByteToneAudioProcessorEditor  : public juce::AudioProcessorEditor,
+    public juce::MidiKeyboardState::Listener
 {
 public:
     ByteToneAudioProcessorEditor (ByteToneAudioProcessor&);
@@ -26,6 +27,9 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+
+    virtual void handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
+    virtual void handleNoteOff(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity) override;
 
 private:
     void openSettings();
@@ -52,7 +56,7 @@ private:
     juce::TextEditor textEditor;
     juce::TextEditor console;
 
-    juce::MidiKeyboardState keyboardState;
+    juce::MidiKeyboardState& keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
 
     CustomLookAndFeel lf;

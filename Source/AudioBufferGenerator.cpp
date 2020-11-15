@@ -34,10 +34,8 @@ juce::String AudioBufferGenerator::evaluateCode()
     {
         const int sr = audioProcessor.getSampleRateParamValue();
         const int lengthInSamples = sr * 30;
-        const juce::AudioSampleBuffer tempBuffer = generateFromText(code, lengthInSamples);
-        ReferenceCountedBuffer::Ptr newBuffer = resampleBuffer(code, tempBuffer, sr);
+        ReferenceCountedBuffer::Ptr newBuffer = generateFromText(code, lengthInSamples);
         audioProcessor.setCurrentBuffer(newBuffer);
-        buffers.add(newBuffer);
 
         return "Done.";
     }
@@ -51,43 +49,25 @@ juce::String AudioBufferGenerator::evaluateCode()
     }
 }
 
-juce::AudioSampleBuffer AudioBufferGenerator::generateFromText(juce::String text, int lengthInSamples)
+ReferenceCountedBuffer::Ptr AudioBufferGenerator::generateFromText(juce::String text, int lengthInSamples)
 {
     const juce::Array<Var> result = interpreter.generate(text, lengthInSamples);
 
+    ReferenceCountedBuffer::Ptr buffer(new ReferenceCountedBuffer(text, 2, lengthInSamples));
+    buffers.add(buffer);
+
     int destSample = 0;
-    juce::AudioSampleBuffer tempBuffer(2, lengthInSamples);
     bool floatMode = audioProcessor.getModeParamValue() == EvaluationMode::FLOAT;
 
     for (const Var r : result)
     {
         float sample = floatMode ? (float)r : integerToSample((int)r);
-        tempBuffer.setSample(0, destSample, sample);
-        tempBuffer.setSample(1, destSample, sample);
+        buffer->getAudioSampleBuffer()->setSample(0, destSample, sample);
+        buffer->getAudioSampleBuffer()->setSample(1, destSample, sample);
         destSample++;
     }
 
-    return tempBuffer;
-}
-
-ReferenceCountedBuffer::Ptr AudioBufferGenerator::resampleBuffer(const juce::String name,
-    const juce::AudioSampleBuffer& buffer, int sourceSampleRate)
-{
-    double ratio = sourceSampleRate / audioProcessor.getSampleRate();
-
-    ReferenceCountedBuffer::Ptr newBuffer = new ReferenceCountedBuffer(name,
-        audioProcessor.getNumOutputChannels(), buffer.getNumSamples() / ratio);
-
-    float** outputs = newBuffer->getAudioSampleBuffer()->getArrayOfWritePointers();
-    const float** inputs = buffer.getArrayOfReadPointers();
-
-    for (int c = 0; c < newBuffer->getAudioSampleBuffer()->getNumChannels(); c++)
-    {
-        juce::LagrangeInterpolator resampler;
-        resampler.process(ratio, inputs[c], outputs[c], newBuffer->getAudioSampleBuffer()->getNumSamples());
-    }
-
-    return newBuffer;
+    return buffer;
 }
 
 float AudioBufferGenerator::integerToSample(int integer)

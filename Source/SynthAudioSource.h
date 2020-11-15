@@ -35,8 +35,12 @@ struct SynthVoice : public juce::SynthesiserVoice
 
     ByteToneAudioProcessor& processor;
 
-    std::atomic<bool> isOn;
-    std::atomic<int> position;
+    float leftGain;
+    float rightGain;
+    double positionInSource;
+    double ratio;
+
+    juce::ADSR adsr;
 };
 
 class SynthAudioSource : public juce::AudioSource

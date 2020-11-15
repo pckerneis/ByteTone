@@ -38,8 +38,7 @@ private:
     void checkForCodeToEvaluate();
 
     juce::String evaluateCode();
-    juce::AudioSampleBuffer generateFromText(juce::String text, int lengthInSamples);
-    ReferenceCountedBuffer::Ptr resampleBuffer(const juce::String name, const juce::AudioSampleBuffer& buffer, int sourceSampleRate);
+    ReferenceCountedBuffer::Ptr generateFromText(juce::String text, int lengthInSamples);
 
     float integerToSample(int integer);
     

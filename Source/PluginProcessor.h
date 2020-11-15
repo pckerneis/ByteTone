@@ -4,7 +4,6 @@
 #include "ReferenceCountedBuffer.h"
 #include "AudioBufferGenerator.h"
 #include "SynthAudioSource.h"
-#include "AudioBufferResampler.h"
 
 //==============================================================================
 /**

@@ -1,3 +1,3 @@
 # ByteTone
 
-A tiny VST that evaluate bytebeat expressions and map them to MIDI notes.
+A tiny audio plugin that evaluates bytebeat expressions and map the result to MIDI notes.

@@ -32,12 +32,6 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
                                                          juce::StringArray("byte", "float"),
                                                          0),
 
-            //std::make_unique<juce::AudioParameterInt>("note",
-            //                                          "Note",
-            //                                          0,
-            //                                          127,
-            //                                          69),
-
             std::make_unique<juce::AudioParameterBool>("playing",
                                                       "Playing",
                                                       false)
@@ -53,7 +47,6 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
     gain = parameters.getRawParameterValue("gain");
     sampleRate = parameters.getRawParameterValue("sampleRate");
     mode = parameters.getRawParameterValue("mode");
-    //note = parameters.getRawParameterValue("note");
     playing = parameters.getRawParameterValue("playing");
 }
 
@@ -187,6 +180,13 @@ void ByteToneAudioProcessor::processBlock(juce::AudioBuffer<float>& bufferToFill
     }
 }
 
+
+float ByteToneAudioProcessor::integerToSample(int integer)
+{
+    const int max = 255;
+    return juce::jmap((float)(integer & max), 0.0f, (float)max, -1.0f, 1.0f);
+}
+
 void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
     ReferenceCountedBuffer::Ptr retainedCurrentBuffer(getCurrentBuffer());
@@ -201,7 +201,21 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
         return;
     }
 
-    auto* sourceBuffer = retainedCurrentBuffer->getAudioSampleBuffer();
+    Array<Var> values = interpreter.generateRange(getCurrentCode(), (int)positionInSource, numSamples);
+
+    ReferenceCountedBuffer::Ptr bufferPtr(new ReferenceCountedBuffer(getCurrentCode(), 2, numSamples));
+    auto* sourceBuffer = bufferPtr->getAudioSampleBuffer();
+
+    int destSample = 0;
+    bool floatMode = false; // audioProcessor.getModeParamValue() == EvaluationMode::FLOAT;
+
+    for (const Var r : values)
+    {
+        float sample = floatMode ? (float)r : integerToSample((int)r);
+        sourceBuffer->setSample(0, destSample, sample);
+        sourceBuffer->setSample(1, destSample, sample);
+        destSample++;
+    }
 
     const float* const inL = sourceBuffer->getReadPointer(0);
     const float* const inR = sourceBuffer->getNumChannels() > 1 ? sourceBuffer->getReadPointer(1) : nullptr;
@@ -209,10 +223,12 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
     float* outL = outputBuffer.getWritePointer(0, startSample);
     float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
 
+    int positionStart = positionInSource;
+
     while (--numSamples >= 0)
     {
-        auto pos = (int)positionInSource;
-        auto alpha = (float)(positionInSource - pos);
+        auto pos = (int)(positionInSource - positionStart);
+        float alpha = (positionInSource - (float)positionStart) - pos;
         auto invAlpha = 1.0f - alpha;
 
         // just using a very simple linear interpolation here..
@@ -230,11 +246,6 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
         }
 
         positionInSource += ratio;
-
-        if (positionInSource > sourceBuffer->getNumSamples())
-        {
-            positionInSource = 0.0;
-        }
     }
 }
 

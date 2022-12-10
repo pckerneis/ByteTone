@@ -66,6 +66,7 @@ public:
     bool addingFromMidiInput() const { return isAddingFromMidiInput; }
     ReferenceCountedBuffer::Ptr getCurrentBuffer() const { return currentBuffer; }
 
+    float integerToSample(int integer);
     void writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
 
 private:
@@ -89,6 +90,8 @@ private:
     double ratio;
 
     bool isAddingFromMidiInput;
+
+    Interpreter interpreter;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ByteToneAudioProcessor)

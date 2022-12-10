@@ -31,7 +31,7 @@ public:
     ~AudioBufferGenerator();
 
     void setCallback(CallbackFunction cb) { callback = cb; }
-    void generate() { shouldGenerate = true; }
+    void updateSourceCode() { shouldUpdate = true; }
 
 private:
     void checkForBuffersToFree();
@@ -47,7 +47,7 @@ private:
     ByteToneAudioProcessor& audioProcessor;
     Interpreter interpreter;
 
-    std::atomic<bool> shouldGenerate;
+    std::atomic<bool> shouldUpdate = false;
     std::function<void(juce::String)> callback;
 
     juce::ReferenceCountedArray<ReferenceCountedBuffer> buffers;

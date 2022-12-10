@@ -87,21 +87,36 @@ public:
 
     juce::Array<Var> generate(const juce::String source, int numSamples)
     {
-        Scanner scanner(source);
-        Parser parser(scanner.scanTokens());
-        std::unique_ptr<Expr> expr(parser.parse());
+        return generateRange(source, 0, numSamples);
+    }
 
+    juce::Array<Var> generateRange(const juce::String source, int startSample, int numSamples)
+    {
+        std::unique_ptr<Expr> expr(parse(source));
+        return evaluateRange(expr.get(), startSample, numSamples);
+    }
+
+    juce::Array<Var> evaluateRange(const Expr* expr, int startSample, int numSamples)
+    {
         juce::Array<Var> output;
 
         for (int i = 0; i < numSamples; ++i)
         {
-            t = i;
-            output.add(evaluate(expr.get()));
+            t = startSample + i;
+            output.add(evaluate(expr));
         }
 
         return output;
     }
 
+    static Expr* parse(const juce::String source)
+    {
+        Scanner scanner(source);
+        Parser parser(scanner.scanTokens());
+        return parser.parse();
+    }
+
+private:
     Var evaluate(const Expr* expr)
     {
         return expr->accept(this);
@@ -219,7 +234,6 @@ public:
             return function(args);
     }
 
-private:
     MathLibrary mathLibrary;
 
     int t = 0;

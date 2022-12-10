@@ -11,7 +11,7 @@
 #include "AudioBufferGenerator.h"
 #include "PluginProcessor.h"
 
-AudioBufferGenerator::AudioBufferGenerator(ByteToneAudioProcessor& p) : Thread("AudioBufferGenerator"), audioProcessor(p), shouldGenerate(false)
+AudioBufferGenerator::AudioBufferGenerator(ByteToneAudioProcessor& p) : Thread("AudioBufferGenerator"), audioProcessor(p)
 {
     startThread();
 }
@@ -99,10 +99,10 @@ void AudioBufferGenerator::checkForBuffersToFree()
 
 void AudioBufferGenerator::checkForCodeToEvaluate()
 {
-    if (shouldGenerate)
+    if (shouldUpdate)
     {
         juce::String result = evaluateCode();
         juce::MessageManager::callAsync([=]() { callback(result); });
-        shouldGenerate = false;
+        shouldUpdate = false;
     }
 }

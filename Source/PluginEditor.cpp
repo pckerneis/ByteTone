@@ -87,7 +87,7 @@ void ByteToneAudioProcessorEditor::openSettings()
 void ByteToneAudioProcessorEditor::evaluateCode()
 {
     console.setText("Processing...");
-    audioProcessor.getGenerator().generate();
+    audioProcessor.getGenerator().updateSourceCode();
 }
 
 void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)

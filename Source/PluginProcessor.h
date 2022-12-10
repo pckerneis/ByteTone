@@ -3,7 +3,6 @@
 #include <JuceHeader.h>
 #include "ReferenceCountedBuffer.h"
 #include "AudioBufferGenerator.h"
-#include "SynthAudioSource.h"
 
 //==============================================================================
 /**
@@ -64,7 +63,6 @@ public:
 
     AudioBufferGenerator& getGenerator() { return generator; }
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
-    juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
     bool addingFromMidiInput() const { return isAddingFromMidiInput; }
     ReferenceCountedBuffer::Ptr getCurrentBuffer() const { return currentBuffer; }
 
@@ -89,9 +87,6 @@ private:
     float previousGain = 0;
     double gainRampTime = 0.01;
     double ratio;
-
-    juce::MidiKeyboardState keyboardState;
-    SynthAudioSource synthAudioSource;
 
     bool isAddingFromMidiInput;
 

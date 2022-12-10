@@ -42,7 +42,6 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
                                                       "Playing",
                                                       false)
         }),
-    synthAudioSource(keyboardState, *this),
     isAddingFromMidiInput(false)
 {
     auto codeValueTree = parameters.state.getOrCreateChildWithName("CODE", parameters.undoManager);
@@ -128,13 +127,11 @@ void ByteToneAudioProcessor::changeProgramName (int index, const juce::String& n
 void ByteToneAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     previousGain = *gain;
-    synthAudioSource.prepareToPlay(samplesPerBlock, sampleRate);
     ratio = getSampleRateParamValue() / getSampleRate();
 }
 
 void ByteToneAudioProcessor::releaseResources()
 {
-    synthAudioSource.releaseResources();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations

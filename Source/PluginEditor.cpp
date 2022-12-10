@@ -4,9 +4,7 @@
 //==============================================================================
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
     : AudioProcessorEditor (&p),
-    audioProcessor(p),
-    keyboardState(p.getKeyboardState()),
-    keyboardComponent(keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+    audioProcessor(p)
 {
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
@@ -36,7 +34,7 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     };
     addAndMakeVisible(runButton);
 
-    startStopButton.setButtonText("Start");
+    startStopButton.setButtonText("Playing");
     startStopButton.setToggleable(true);
     playingAttachment.reset(new ButtonAttachment(p.getParameters(), "playing", startStopButton));
     addAndMakeVisible(startStopButton);
@@ -64,27 +62,15 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     modeAttachment.reset(new ComboBoxAttachment(p.getParameters(), "mode", modeComboBox));
     addAndMakeVisible(modeComboBox);
 
-    //noteLabel.setText("note:", juce::NotificationType::dontSendNotification);
-    //addAndMakeVisible(noteLabel);
-
-    //noteSlider.setSliderStyle(Slider::LinearBar);
-    //noteAttachment.reset(new SliderAttachment(p.getParameters(), "note", noteSlider));
-    //addAndMakeVisible(noteSlider);
-
-    //addAndMakeVisible(keyboardComponent);
-
     setResizable(true, true);
     setResizeLimits(500, 200, 3000, 3000);
     setSize (500, 400);
 
     audioProcessor.getGenerator().setCallback([this](juce::String msg) { console.setText(msg); });
-
-    keyboardState.addListener(this);
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
 {
-    keyboardState.removeListener(this);
 }
 
 #include "StandaloneWindow.h"
@@ -132,15 +118,11 @@ void ByteToneAudioProcessorEditor::resized()
     if (JUCEApplication::isStandaloneApp())
         settingsButton.setBounds(firstLine.removeFromRight(buttonWidth));
 
-    //keyboardComponent.setBounds(r.removeFromBottom(keyboardHeight));
-
     auto secondLine = r.removeFromBottom(lineHeight);
     sampleRateLabel.setBounds(secondLine.removeFromLeft(charW * 3));
     sampleRateSlider.setBounds(secondLine.removeFromLeft(srWidth));
     modeLabel.setBounds(secondLine.removeFromLeft(charW * 4));
     modeComboBox.setBounds(secondLine.removeFromLeft(comboWidth));
-    //noteLabel.setBounds(secondLine.removeFromLeft(charW * 4));
-    //noteSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
     gainLabel.setBounds(secondLine.removeFromLeft(charW * 3));
     gainSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
 
@@ -150,24 +132,4 @@ void ByteToneAudioProcessorEditor::resized()
     console.setBounds(r.removeFromBottom(consoleHeight));
 
     textEditor.setBounds(r);
-}
-
-void ByteToneAudioProcessorEditor::handleNoteOn(MidiKeyboardState* source, int midiChannel, int midiNoteNumber, float velocity)
-{
-    if (!audioProcessor.addingFromMidiInput())
-    {
-        auto m = juce::MidiMessage::noteOn(midiChannel, midiNoteNumber, velocity);
-        m.setTimeStamp(juce::Time::getMillisecondCounterHiRes() * 0.001);
-        // postMessageToList(m, "On-Screen Keyboard");
-    }
-}
-
-void ByteToneAudioProcessorEditor::handleNoteOff(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float /*velocity*/)
-{
-    if (!audioProcessor.addingFromMidiInput())
-    {
-        auto m = juce::MidiMessage::noteOff(midiChannel, midiNoteNumber);
-        m.setTimeStamp(juce::Time::getMillisecondCounterHiRes() * 0.001);
-        // postMessageToList(m, "On-Screen Keyboard");
-    }
 }

@@ -12,7 +12,6 @@
 //==============================================================================
 ByteToneAudioProcessor::ByteToneAudioProcessor()
      : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
-    generator(*this),
     parameters (*this, nullptr, juce::Identifier("ByteToneAudioProcessor"),
         {
             std::make_unique<juce::AudioParameterFloat>("gain",
@@ -35,8 +34,7 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
             std::make_unique<juce::AudioParameterBool>("playing",
                                                       "Playing",
                                                       false)
-        }),
-    isAddingFromMidiInput(false)
+        })
 {
     auto codeValueTree = parameters.state.getOrCreateChildWithName("CODE", parameters.undoManager);
 
@@ -189,36 +187,28 @@ float ByteToneAudioProcessor::integerToSample(int integer)
 
 void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    ReferenceCountedBuffer::Ptr retainedCurrentBuffer(getCurrentBuffer());
-
-    if (retainedCurrentBuffer == nullptr)
-    {
-        return;
-    }
-
     if (!isPlaying())
     {
         return;
     }
 
-    Array<Var> values = interpreter.generateRange(getCurrentCode(), (int)positionInSource, numSamples);
-
-    ReferenceCountedBuffer::Ptr bufferPtr(new ReferenceCountedBuffer(getCurrentCode(), 2, numSamples));
-    auto* sourceBuffer = bufferPtr->getAudioSampleBuffer();
+    int numSourceSamples = ceil(numSamples / ratio);
+    Array<Var> values = interpreter.generateRange(getCurrentCode(), (int)positionInSource, numSourceSamples);
+    juce::AudioSampleBuffer sourceBuffer (2, numSourceSamples);
 
     int destSample = 0;
-    bool floatMode = false; // audioProcessor.getModeParamValue() == EvaluationMode::FLOAT;
+    bool floatMode = getModeParamValue() == EvaluationMode::FLOAT;
 
     for (const Var r : values)
     {
         float sample = floatMode ? (float)r : integerToSample((int)r);
-        sourceBuffer->setSample(0, destSample, sample);
-        sourceBuffer->setSample(1, destSample, sample);
+        sourceBuffer.setSample(0, destSample, sample);
+        sourceBuffer.setSample(1, destSample, sample);
         destSample++;
     }
 
-    const float* const inL = sourceBuffer->getReadPointer(0);
-    const float* const inR = sourceBuffer->getNumChannels() > 1 ? sourceBuffer->getReadPointer(1) : nullptr;
+    const float* const inL = sourceBuffer.getReadPointer(0);
+    const float* const inR = sourceBuffer.getNumChannels() > 1 ? sourceBuffer.getReadPointer(1) : nullptr;
 
     float* outL = outputBuffer.getWritePointer(0, startSample);
     float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;

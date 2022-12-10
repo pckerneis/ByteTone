@@ -1,8 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "ReferenceCountedBuffer.h"
-#include "AudioBufferGenerator.h"
+#include "Interpreter.h"
 
 //==============================================================================
 /**
@@ -12,6 +11,12 @@ class ByteToneAudioProcessor  : public juce::AudioProcessor
     juce::String defaultProgram = "t * ((t>>12 | t>>9) & (t>>6) & 50)";
 
 public:
+    enum EvaluationMode
+    {
+        BYTE = 0,
+        FLOAT = 1,
+    };
+
     //==============================================================================
     ByteToneAudioProcessor();
     ~ByteToneAudioProcessor() override;
@@ -50,8 +55,6 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    void setCurrentBuffer(ReferenceCountedBuffer::Ptr buffer) { currentBuffer = buffer; }
-
     int getSampleRateParamValue() const { return *sampleRate; }
     float getGainParamValue() const { return *gain; }
     int getModeParamValue() const { return *mode; }
@@ -61,20 +64,14 @@ public:
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
     void setCurrentCode(juce::String code) { getCodeValueTree().setProperty("code", code, parameters.undoManager); }
 
-    AudioBufferGenerator& getGenerator() { return generator; }
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
-    bool addingFromMidiInput() const { return isAddingFromMidiInput; }
-    ReferenceCountedBuffer::Ptr getCurrentBuffer() const { return currentBuffer; }
 
+private:
     float integerToSample(int integer);
     void writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
 
-private:
     juce::ValueTree getCodeValueTree() { return parameters.state.getChildWithName("CODE"); }
     juce::ValueTree getCodeValueTree() const { return parameters.state.getChildWithName("CODE"); }
-
-    AudioBufferGenerator generator;
-    ReferenceCountedBuffer::Ptr currentBuffer;
 
     juce::AudioProcessorValueTreeState parameters;
 
@@ -88,8 +85,6 @@ private:
     float previousGain = 0;
     double gainRampTime = 0.01;
     double ratio;
-
-    bool isAddingFromMidiInput;
 
     Interpreter interpreter;
 

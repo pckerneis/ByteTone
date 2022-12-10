@@ -31,8 +31,6 @@ public:
 private:
     void openSettings();
 
-    void evaluateCode();
-
     ByteToneAudioProcessor& audioProcessor;
 
     juce::Slider sampleRateSlider;

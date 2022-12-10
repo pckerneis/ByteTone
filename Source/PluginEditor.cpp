@@ -30,7 +30,6 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     runButton.setButtonText("Compile");
     runButton.onClick = [this, &p] { 
         p.setCurrentCode(textEditor.getText());
-        evaluateCode();
     };
     addAndMakeVisible(runButton);
 
@@ -65,8 +64,6 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     setResizable(true, true);
     setResizeLimits(500, 200, 3000, 3000);
     setSize (500, 400);
-
-    audioProcessor.getGenerator().setCallback([this](juce::String msg) { console.setText(msg); });
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
@@ -82,12 +79,6 @@ void ByteToneAudioProcessorEditor::openSettings()
         if (auto app = dynamic_cast<StandaloneFilterApp*>(JUCEApplication::getInstance()))
             app->openSettings();
     }
-}
-
-void ByteToneAudioProcessorEditor::evaluateCode()
-{
-    console.setText("Processing...");
-    audioProcessor.getGenerator().updateSourceCode();
 }
 
 void ByteToneAudioProcessorEditor::paint (juce::Graphics& g)

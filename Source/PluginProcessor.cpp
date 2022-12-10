@@ -152,14 +152,15 @@ bool ByteToneAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 void ByteToneAudioProcessor::processBlock(juce::AudioBuffer<float>& bufferToFill, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-    const int numSamplesToFill = bufferToFill.getNumSamples();
-
-    juce::AudioSourceChannelInfo audioSourceChannelInfo (&bufferToFill, 0, numSamplesToFill);
+    juce::AudioSourceChannelInfo audioSourceChannelInfo (&bufferToFill, 0, bufferToFill.getNumSamples());
     audioSourceChannelInfo.clearActiveBufferRegion();
     writeBuffer(*audioSourceChannelInfo.buffer, audioSourceChannelInfo.startSample, audioSourceChannelInfo.numSamples);
+    applyMasterGain(bufferToFill);
+}
 
-
+void ByteToneAudioProcessor::applyMasterGain(juce::AudioBuffer<float>& bufferToFill)
+{
+    const int numSamplesToFill = bufferToFill.getNumSamples();
     float currentGain = *gain;
 
     if (currentGain == previousGain)
@@ -178,11 +179,9 @@ void ByteToneAudioProcessor::processBlock(juce::AudioBuffer<float>& bufferToFill
     }
 }
 
-
 float ByteToneAudioProcessor::integerToSample(int integer)
 {
-    const int max = 255;
-    return juce::jmap((float)(integer & max), 0.0f, (float)max, -1.0f, 1.0f);
+    return (jlimit(0, 255, integer) / 128.0) - 1.0;
 }
 
 void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
@@ -192,47 +191,27 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
         return;
     }
 
-    int numSourceSamples = ceil(numSamples / ratio);
-    Array<Var> values = interpreter.generateRange(getCurrentCode(), (int)positionInSource, numSourceSamples);
-    juce::AudioSampleBuffer sourceBuffer (2, numSourceSamples);
-
-    int destSample = 0;
-    bool floatMode = getModeParamValue() == EvaluationMode::FLOAT;
-
-    for (const Var r : values)
+    if (rootExpr.get() == nullptr)
     {
-        float sample = floatMode ? (float)r : integerToSample((int)r);
-        sourceBuffer.setSample(0, destSample, sample);
-        sourceBuffer.setSample(1, destSample, sample);
-        destSample++;
+        return;
     }
 
-    const float* const inL = sourceBuffer.getReadPointer(0);
-    const float* const inR = sourceBuffer.getNumChannels() > 1 ? sourceBuffer.getReadPointer(1) : nullptr;
+    int sourceStart = floor(positionInSource);
+    int numSourceSamples = 1 + ceil((1 + numSamples) * ratio);
+    Array<Var> values = interpreter.evaluateRange(rootExpr.get(), sourceStart, numSourceSamples);
 
     float* outL = outputBuffer.getWritePointer(0, startSample);
     float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
 
-    int positionStart = positionInSource;
-
     while (--numSamples >= 0)
     {
-        auto pos = (int)(positionInSource - positionStart);
-        float alpha = (positionInSource - (float)positionStart) - pos;
-        auto invAlpha = 1.0f - alpha;
-
-        // just using a very simple linear interpolation here..
-        float l = (inL != nullptr) ? (inL[pos] * invAlpha + inL[pos + 1] * alpha) : 0;
-        float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
+        int pos = (int)floor(positionInSource - sourceStart);
+        float value = values[pos];
+        *outL++ += value;
 
         if (outR != nullptr)
         {
-            *outL++ += l;
-            *outR++ += r;
-        }
-        else
-        {
-            *outL++ += (l + r) * 0.5f;
+            *outR++ += value;
         }
 
         positionInSource += ratio;

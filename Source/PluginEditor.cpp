@@ -38,6 +38,7 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
 
     startStopButton.setButtonText("Playing");
     startStopButton.setToggleable(true);
+    startStopButton.setClickingTogglesState(true);
     playingAttachment.reset(new ButtonAttachment(p.getParameters(), "playing", startStopButton));
     addAndMakeVisible(startStopButton);
 
@@ -112,7 +113,7 @@ void ByteToneAudioProcessorEditor::resized()
     if (JUCEApplication::isStandaloneApp())
         settingsButton.setBounds(firstLine.removeFromRight(buttonWidth));
 
-    auto secondLine = r.removeFromBottom(lineHeight);
+    auto secondLine = r.removeFromTop(lineHeight);
     sampleRateLabel.setBounds(secondLine.removeFromLeft(charW * 3));
     sampleRateSlider.setBounds(secondLine.removeFromLeft(srWidth));
     modeLabel.setBounds(secondLine.removeFromLeft(charW * 4));

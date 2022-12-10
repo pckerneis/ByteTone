@@ -31,6 +31,8 @@ public:
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
+    void applyMasterGain(juce::AudioBuffer<float>& bufferToFill);
+
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -63,7 +65,10 @@ public:
     bool isPlaying() const { return *playing > 0; }
 
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
-    void setCurrentCode(juce::String code) { getCodeValueTree().setProperty("code", code, parameters.undoManager); }
+    void setCurrentCode(juce::String code) { 
+        getCodeValueTree().setProperty("code", code, parameters.undoManager);
+        rootExpr.reset(interpreter.parse(code));
+    }
 
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
 
@@ -86,6 +91,8 @@ private:
     float previousGain = 0;
     double gainRampTime = 0.01;
     double ratio;
+
+    std::unique_ptr<Expr> rootExpr;
 
     Interpreter interpreter;
 

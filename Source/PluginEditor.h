@@ -63,7 +63,7 @@ private:
     juce::ComboBox modeComboBox;
     std::unique_ptr<ComboBoxAttachment> modeAttachment;
 
-    juce::ToggleButton startStopButton;
+    juce::TextButton startStopButton;
     std::unique_ptr<ButtonAttachment> playingAttachment;
 
     juce::Label sampleRateLabel;

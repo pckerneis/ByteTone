@@ -223,8 +223,7 @@ public:
         else
         {
             g.fillRoundedRectangle(bounds, cornerSize);
-
-            g.setColour(button.findColour(ComboBox::outlineColourId));
+            g.setColour(button.findColour(button.getToggleState() ? TextButton::textColourOnId : ComboBox::outlineColourId));
             g.drawRoundedRectangle(bounds, cornerSize, 1.0f);
         }
     }

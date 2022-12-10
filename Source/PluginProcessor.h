@@ -59,6 +59,7 @@ public:
     float getGainParamValue() const { return *gain; }
     int getModeParamValue() const { return *mode; }
     int getNoteParamValue() const { return *note; }
+    void setPlaying(bool shouldBePlaying) const { *playing = shouldBePlaying ? 1 : 0; }
     bool isPlaying() const { return *playing > 0; }
 
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }

@@ -6,6 +6,8 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     : AudioProcessorEditor (&p),
     audioProcessor(p)
 {
+    setWantsKeyboardFocus(true);
+
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
     console.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
@@ -16,9 +18,10 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
 
     textEditor.setFont(textEditor.getFont().withHeight(lf.getDefaultFontHeight()));
     textEditor.setMultiLine(true, true);
-    textEditor.setReturnKeyStartsNewLine(true);
+    textEditor.setReturnKeyStartsNewLine(false);
     addAndMakeVisible(textEditor);
 
+    textEditor.setEscapeAndReturnKeysConsumed(false);
     textEditor.setText(p.getCurrentCode());
 
     settingsButton.setButtonText("Settings");

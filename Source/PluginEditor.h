@@ -28,8 +28,29 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+
+    //==============================================================================
+    bool keyPressed(const KeyPress& key) override
+    {
+        if (key.getModifiers().isCommandDown() && key.isKeyCurrentlyDown(key.returnKey)) {
+            if (key.getModifiers().isShiftDown())
+            {
+                startStopButton.setToggleState(!audioProcessor.isPlaying(), NotificationType::sendNotification);
+                return true;
+            }
+            else
+            {
+                audioProcessor.setCurrentCode(textEditor.getText());
+                return true;
+            }
+        }
+
+        return false; // Key command not consumed
+    }
 private:
     void openSettings();
+    
+    ApplicationCommandManager commandManager;
 
     ByteToneAudioProcessor& audioProcessor;
 

@@ -13,6 +13,7 @@
 
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
+typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
 
 //==============================================================================
 /**
@@ -49,6 +50,9 @@ private:
 
     juce::Slider noteSlider;
     std::unique_ptr<SliderAttachment> noteAttachment;
+
+    juce::ToggleButton startStopButton;
+    std::unique_ptr<ButtonAttachment> playingAttachment;
 
     juce::Label sampleRateLabel;
     juce::Label gainLabel;

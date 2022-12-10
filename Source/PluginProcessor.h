@@ -57,6 +57,7 @@ public:
     float getGainParamValue() const { return *gain; }
     int getModeParamValue() const { return *mode; }
     int getNoteParamValue() const { return *note; }
+    bool isPlaying() const { return *playing > 0; }
 
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
     void setCurrentCode(juce::String code) { getCodeValueTree().setProperty("code", code, parameters.undoManager); }
@@ -66,6 +67,8 @@ public:
     juce::MidiKeyboardState& getKeyboardState() { return keyboardState; }
     bool addingFromMidiInput() const { return isAddingFromMidiInput; }
     ReferenceCountedBuffer::Ptr getCurrentBuffer() const { return currentBuffer; }
+
+    void writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
 
 private:
     juce::ValueTree getCodeValueTree() { return parameters.state.getChildWithName("CODE"); }
@@ -80,9 +83,12 @@ private:
     std::atomic<float>* mode       = nullptr;
     std::atomic<float>* gain       = nullptr;
     std::atomic<float>* note       = nullptr;
+    std::atomic<float>* playing    = nullptr;
 
-    float previousGain;
+    double positionInSource = 0;
+    float previousGain = 0;
     double gainRampTime = 0.01;
+    double ratio;
 
     juce::MidiKeyboardState keyboardState;
     SynthAudioSource synthAudioSource;

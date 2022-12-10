@@ -26,7 +26,11 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
 {
     positionInSource = 0;
 
-    ratio = pow(2.0, ((double)midiNoteNumber - processor.getNoteParamValue()) / 12.0)
+
+    //ratio = pow(2.0, ((double)midiNoteNumber - processor.getNoteParamValue()) / 12.0)
+    //    * processor.getSampleRateParamValue() / getSampleRate();
+
+    ratio = pow(2.0, ((double)midiNoteNumber - 69) / 12.0)
         * processor.getSampleRateParamValue() / getSampleRate();
 
     leftGain = velocity;

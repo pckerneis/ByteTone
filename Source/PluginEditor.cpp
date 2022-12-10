@@ -36,6 +36,11 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     };
     addAndMakeVisible(runButton);
 
+    startStopButton.setButtonText("Start");
+    startStopButton.setToggleable(true);
+    playingAttachment.reset(new ButtonAttachment(p.getParameters(), "playing", startStopButton));
+    addAndMakeVisible(startStopButton);
+
     sampleRateLabel.setText("sr:", juce::NotificationType::dontSendNotification);
     addAndMakeVisible(sampleRateLabel);
 
@@ -59,14 +64,14 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     modeAttachment.reset(new ComboBoxAttachment(p.getParameters(), "mode", modeComboBox));
     addAndMakeVisible(modeComboBox);
 
-    noteLabel.setText("note:", juce::NotificationType::dontSendNotification);
-    addAndMakeVisible(noteLabel);
+    //noteLabel.setText("note:", juce::NotificationType::dontSendNotification);
+    //addAndMakeVisible(noteLabel);
 
-    noteSlider.setSliderStyle(Slider::LinearBar);
-    noteAttachment.reset(new SliderAttachment(p.getParameters(), "note", noteSlider));
-    addAndMakeVisible(noteSlider);
+    //noteSlider.setSliderStyle(Slider::LinearBar);
+    //noteAttachment.reset(new SliderAttachment(p.getParameters(), "note", noteSlider));
+    //addAndMakeVisible(noteSlider);
 
-    addAndMakeVisible(keyboardComponent);
+    //addAndMakeVisible(keyboardComponent);
 
     setResizable(true, true);
     setResizeLimits(500, 200, 3000, 3000);
@@ -127,18 +132,19 @@ void ByteToneAudioProcessorEditor::resized()
     if (JUCEApplication::isStandaloneApp())
         settingsButton.setBounds(firstLine.removeFromRight(buttonWidth));
 
-    keyboardComponent.setBounds(r.removeFromBottom(keyboardHeight));
+    //keyboardComponent.setBounds(r.removeFromBottom(keyboardHeight));
 
     auto secondLine = r.removeFromBottom(lineHeight);
     sampleRateLabel.setBounds(secondLine.removeFromLeft(charW * 3));
     sampleRateSlider.setBounds(secondLine.removeFromLeft(srWidth));
     modeLabel.setBounds(secondLine.removeFromLeft(charW * 4));
     modeComboBox.setBounds(secondLine.removeFromLeft(comboWidth));
-    noteLabel.setBounds(secondLine.removeFromLeft(charW * 4));
-    noteSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
+    //noteLabel.setBounds(secondLine.removeFromLeft(charW * 4));
+    //noteSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
     gainLabel.setBounds(secondLine.removeFromLeft(charW * 3));
     gainSlider.setBounds(secondLine.removeFromLeft(sliderWidth));
 
+    startStopButton.setBounds(secondLine.removeFromRight(buttonWidth));
     runButton.setBounds(secondLine.removeFromRight(buttonWidth));
 
     console.setBounds(r.removeFromBottom(consoleHeight));

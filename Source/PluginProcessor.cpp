@@ -13,7 +13,6 @@
 ByteToneAudioProcessor::ByteToneAudioProcessor()
      : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
     generator(*this),
-    previousGain(0),
     parameters (*this, nullptr, juce::Identifier("ByteToneAudioProcessor"),
         {
             std::make_unique<juce::AudioParameterFloat>("gain",
@@ -33,19 +32,30 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
                                                          juce::StringArray("byte", "float"),
                                                          0),
 
-            std::make_unique<juce::AudioParameterInt>("note",
-                                                      "Note",
-                                                      0,
-                                                      127,
-                                                      69)
+            //std::make_unique<juce::AudioParameterInt>("note",
+            //                                          "Note",
+            //                                          0,
+            //                                          127,
+            //                                          69),
+
+            std::make_unique<juce::AudioParameterBool>("playing",
+                                                      "Playing",
+                                                      false)
         }),
     synthAudioSource(keyboardState, *this),
     isAddingFromMidiInput(false)
 {
+    auto codeValueTree = parameters.state.getOrCreateChildWithName("CODE", parameters.undoManager);
+
+    if (getCurrentCode().isEmpty())
+    {
+        setCurrentCode(defaultProgram);
+    }
     gain = parameters.getRawParameterValue("gain");
     sampleRate = parameters.getRawParameterValue("sampleRate");
     mode = parameters.getRawParameterValue("mode");
-    note = parameters.getRawParameterValue("note");
+    //note = parameters.getRawParameterValue("note");
+    playing = parameters.getRawParameterValue("playing");
 }
 
 ByteToneAudioProcessor::~ByteToneAudioProcessor()
@@ -119,6 +129,7 @@ void ByteToneAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     previousGain = *gain;
     synthAudioSource.prepareToPlay(samplesPerBlock, sampleRate);
+    ratio = getSampleRateParamValue() / getSampleRate();
 }
 
 void ByteToneAudioProcessor::releaseResources()
@@ -156,15 +167,10 @@ void ByteToneAudioProcessor::processBlock(juce::AudioBuffer<float>& bufferToFill
     auto totalNumOutputChannels = getTotalNumOutputChannels();
     const int numSamplesToFill = bufferToFill.getNumSamples();
 
-    {
-        const juce::ScopedValueSetter<bool> scopedInputFlag(isAddingFromMidiInput, true);
-        keyboardState.processNextMidiBuffer(midiMessages, 0, numSamplesToFill, true);
-    }
+    juce::AudioSourceChannelInfo audioSourceChannelInfo (&bufferToFill, 0, numSamplesToFill);
+    audioSourceChannelInfo.clearActiveBufferRegion();
+    writeBuffer(*audioSourceChannelInfo.buffer, audioSourceChannelInfo.startSample, audioSourceChannelInfo.numSamples);
 
-    for (auto i = 0; i < totalNumOutputChannels; ++i)
-        bufferToFill.clear(i, 0, numSamplesToFill);
-
-    synthAudioSource.renderNextBlock(juce::AudioSourceChannelInfo(&bufferToFill, 0, numSamplesToFill), midiMessages);
 
     float currentGain = *gain;
 
@@ -181,6 +187,57 @@ void ByteToneAudioProcessor::processBlock(juce::AudioBuffer<float>& bufferToFill
             bufferToFill.applyGain(rampSamples, numSamplesToFill - rampSamples, currentGain);
 
         previousGain = currentGain;
+    }
+}
+
+void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
+{
+    ReferenceCountedBuffer::Ptr retainedCurrentBuffer(getCurrentBuffer());
+
+    if (retainedCurrentBuffer == nullptr)
+    {
+        return;
+    }
+
+    if (!isPlaying())
+    {
+        return;
+    }
+
+    auto* sourceBuffer = retainedCurrentBuffer->getAudioSampleBuffer();
+
+    const float* const inL = sourceBuffer->getReadPointer(0);
+    const float* const inR = sourceBuffer->getNumChannels() > 1 ? sourceBuffer->getReadPointer(1) : nullptr;
+
+    float* outL = outputBuffer.getWritePointer(0, startSample);
+    float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
+
+    while (--numSamples >= 0)
+    {
+        auto pos = (int)positionInSource;
+        auto alpha = (float)(positionInSource - pos);
+        auto invAlpha = 1.0f - alpha;
+
+        // just using a very simple linear interpolation here..
+        float l = (inL != nullptr) ? (inL[pos] * invAlpha + inL[pos + 1] * alpha) : 0;
+        float r = (inR != nullptr) ? (inR[pos] * invAlpha + inR[pos + 1] * alpha) : l;
+
+        if (outR != nullptr)
+        {
+            *outL++ += l;
+            *outR++ += r;
+        }
+        else
+        {
+            *outL++ += (l + r) * 0.5f;
+        }
+
+        positionInSource += ratio;
+
+        if (positionInSource > sourceBuffer->getNumSamples())
+        {
+            positionInSource = 0.0;
+        }
     }
 }
 
@@ -228,6 +285,7 @@ void ByteToneAudioProcessor::setStateInformation (const void* data, int sizeInBy
         setCurrentCode(defaultProgram);
     }
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..

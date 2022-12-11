@@ -22,4 +22,5 @@ public:
     virtual Var visitGrouping(const GroupingExpr& expr) = 0;
     virtual Var visitIdentifier(const IdentifierExpr& expr) = 0;
     virtual Var visitCall(const CallExpr& expr) = 0;
+    virtual Var visitAssignment(const AssignExpr& expr) = 0;
 };

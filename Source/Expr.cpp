@@ -50,3 +50,8 @@ Var CallExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitCall(*this);
 }
+
+Var AssignExpr::accept(AstVisitor* visitor) const
+{
+    return visitor->visitAssignment(*this);
+}

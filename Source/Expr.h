@@ -116,3 +116,17 @@ struct CallExpr : Expr
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CallExpr)
 };
+
+struct AssignExpr : Expr
+{
+    AssignExpr(juce::String l, Token oper, Expr* r) : assignee(l), value(r), op(oper) {}
+    virtual ~AssignExpr() {}
+
+    Var accept(AstVisitor* visitor) const override;
+
+    const juce::String assignee;
+    const std::unique_ptr<Expr> value;
+    const Token op;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AssignExpr)
+};

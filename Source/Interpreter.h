@@ -71,6 +71,7 @@ public:
     static Var pow(Args a)      { return std::pow(getDouble(a, 0), getDouble(a, 1)); }
     static Var sqrt(Args a)     { return std::sqrt(getDouble(a, 0)); }
     static Var rand(Args a)     { return std::rand(); }
+    static Var fmod(Args a)     { return std::fmod(getDouble(a, 0), getDouble(a, 1)); }
 
     template <typename T>
     static int signum(T val) {
@@ -98,6 +99,8 @@ public:
 
     juce::Array<Var> evaluateRange(const Expr* expr, int startSample, int numSamples)
     {
+        reset();
+
         juce::Array<Var> output;
 
         for (int i = 0; i < numSamples; ++i)
@@ -117,6 +120,11 @@ public:
     }
 
 private:
+    void reset()
+    {
+        assignedValues.clear();
+    }
+
     Var evaluate(const Expr* expr)
     {
         return expr->accept(this);
@@ -188,7 +196,7 @@ private:
             return right.isInt() ? -(int)right : -(double)right;
             break;
         case TokenType::BITWISE_COMPLEMENT:
-            return ~right.isInt() ? right : 0;
+            return right.isInt() ? ~(int)right : 0;
             break;
         }
 
@@ -207,7 +215,10 @@ private:
             return t;
         }
 
-        juce::String test("test");
+        if (assignedValues.contains(expr.name))
+        {
+            return assignedValues[expr.name];
+        }
 
         return mathLibrary.getProperty(expr.name);
     }
@@ -234,7 +245,15 @@ private:
             return function(args);
     }
 
+    Var visitAssignment(const AssignExpr& expr) override
+    {
+        Var value = evaluate(expr.value.get());
+        assignedValues.set(expr.assignee, value);
+        return value;
+    }
+
     MathLibrary mathLibrary;
+    juce::HashMap<juce::String, juce::var> assignedValues;
 
     int t = 0;
 };

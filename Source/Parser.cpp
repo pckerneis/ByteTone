@@ -17,8 +17,28 @@ Expr* Parser::parse()
 
 Expr* Parser::expression()
 {
-    // TODO: add ternary conditional
-    return ternaryConditional();
+    return assignment();
+}
+
+Expr* Parser::assignment()
+{
+    std::unique_ptr<Expr> expr(ternaryConditional());
+
+    if (match(TokenType::EQUAL))
+    {
+        Token equals = previous();
+        std::unique_ptr<Expr> value(assignment());
+
+        if (IdentifierExpr* identifier = dynamic_cast<IdentifierExpr*>(expr.get()))
+        {
+            juce::String name = identifier->name;
+            return new AssignExpr(name, equals, value.release());
+        }
+        
+        error(equals, "Invalid assignment target.");
+    }
+
+    return expr.release();
 }
 
 Expr* Parser::ternaryConditional()

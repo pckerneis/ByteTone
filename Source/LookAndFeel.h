@@ -105,7 +105,7 @@ public:
 
     int getDefaultFontHeight() const
     {
-        return 16;
+        return 18;
     }
 
     static Typeface::Ptr getDefaultTypeface()

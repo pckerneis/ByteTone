@@ -48,7 +48,7 @@ public:
         StandalonePluginHolder::PluginInOuts channels[] = { JucePlugin_PreferredChannelConfigurations };
 #endif
 
-        return new StandaloneFilterWindow(getApplicationName(),
+        auto window = new StandaloneFilterWindow(getApplicationName(),
             LookAndFeel::getDefaultLookAndFeel().findColour(ResizableWindow::backgroundColourId),
             appProperties.getUserSettings(),
             false, {}, nullptr
@@ -61,6 +61,10 @@ public:
             , false
 #endif
         );
+
+        window->setTitleBarButtonsRequired(DocumentWindow::minimiseButton | DocumentWindow::closeButton | DocumentWindow::maximiseButton, false);
+
+        return window;
     }
 
     //==============================================================================

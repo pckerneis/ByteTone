@@ -123,14 +123,9 @@ public:
     void drawComboBox(Graphics& g, int width, int height, bool,
         int, int, int, int, ComboBox& box) override
     {
-        auto cornerSize = box.findParentComponentOfClass<ChoicePropertyComponent>() != nullptr ? 0.0f : 3.0f;
-        Rectangle<int> boxBounds(0, 0, width, height);
-
-        g.setColour(box.findColour(ComboBox::backgroundColourId));
-        g.fillRoundedRectangle(boxBounds.toFloat(), cornerSize);
-
-        g.setColour(box.findColour(ComboBox::outlineColourId));
-        g.drawRoundedRectangle(boxBounds.toFloat().reduced(0.5f, 0.5f), cornerSize, 1.0f);
+        auto bounds = Rectangle<float> (0, 0, width, height).reduced(0.5f, 0.5f);
+        Colour colour = box.findColour(TextButton::textColourOnId);
+        drawFieldBackground(g, colour, bounds, false, box.hasKeyboardFocus(true));
 
         Rectangle<int> arrowZone(width - 20, 0, 12, height);
         Path path;
@@ -168,17 +163,28 @@ public:
                 Justification::centred, false);
     }
 
+    void drawLinearSlider(Graphics& g, int x, int y, int width, int height,
+        float sliderPos,
+        float minSliderPos,
+        float maxSliderPos,
+        const Slider::SliderStyle style, Slider& slider)
+    {
+        if (slider.isBar())
+        {
+            auto bounds = slider.getLocalBounds().toFloat().reduced(0.5f, 0.5f).withX(0).withY(0);
+            Colour colour = slider.findColour(TextButton::textColourOnId);
+            drawFieldBackground(g, colour, bounds, false, slider.hasKeyboardFocus(true));
+        }
+        else
+        {
+            LookAndFeel_V4::drawLinearSlider(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
+        }
+    }
+
     Label* createSliderTextBox(Slider& slider) override
     {
         auto* l = LookAndFeel_V2::createSliderTextBox(slider);
-
-        if (getCurrentColourScheme() == LookAndFeel_V4::getGreyColourScheme() && (slider.getSliderStyle() == Slider::LinearBar
-            || slider.getSliderStyle() == Slider::LinearBarVertical))
-        {
-            // l->setColour(Label::textColourId, Colours::black.withAlpha(0.7f));
-        }
         l->setJustificationType(juce::Justification::centredLeft);
-
         return l;
     }
 
@@ -188,44 +194,29 @@ public:
         bool shouldDrawButtonAsHighlighted,
         bool shouldDrawButtonAsDown)
     {
-        auto cornerSize = 0.0f;
         auto bounds = button.getLocalBounds().toFloat().reduced(0.5f, 0.5f);
+        Colour colour = button.findColour(TextButton::textColourOnId);
 
-        auto baseColour = backgroundColour.withMultipliedSaturation(button.hasKeyboardFocus(true) ? 1.3f : 0.9f)
-            .withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f);
+        drawFieldBackground(g, colour, bounds, button.getToggleState(), button.hasKeyboardFocus(true));
+    }
 
-        if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
-            baseColour = selectionColour.withMultipliedAlpha(shouldDrawButtonAsDown ? 1.0f : 0.55f);
+    void drawFieldBackground(Graphics& g, Colour colour, Rectangle<float> bounds, bool active, bool focused)
+    {
 
-        g.setColour(baseColour);
-
-        auto flatOnLeft = button.isConnectedOnLeft();
-        auto flatOnRight = button.isConnectedOnRight();
-        auto flatOnTop = button.isConnectedOnTop();
-        auto flatOnBottom = button.isConnectedOnBottom();
-
-        if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom)
+        g.setColour(active ? colour.withAlpha(0.2f) : Colours::transparentBlack);
+        g.fillRect(bounds);
+            
+        if (active)
         {
-            Path path;
-            path.addRoundedRectangle(bounds.getX(), bounds.getY(),
-                bounds.getWidth(), bounds.getHeight(),
-                cornerSize, cornerSize,
-                !(flatOnLeft || flatOnTop),
-                !(flatOnRight || flatOnTop),
-                !(flatOnLeft || flatOnBottom),
-                !(flatOnRight || flatOnBottom));
-
-            g.fillPath(path);
-
-            g.setColour(button.findColour(ComboBox::outlineColourId));
-            g.strokePath(path, PathStrokeType(1.0f));
+            colour = colour.withMultipliedBrightness(focused ? 1.0f : 0.5f);
         }
         else
         {
-            g.fillRoundedRectangle(bounds, cornerSize);
-            g.setColour(button.findColour(button.getToggleState() ? TextButton::textColourOnId : ComboBox::outlineColourId));
-            g.drawRoundedRectangle(bounds, cornerSize, 1.0f);
+            colour = colour.withMultipliedBrightness(focused ? 1.0f : 0.0f);
         }
+
+        g.setColour(colour);
+        g.drawRect(bounds, 1.0f);
     }
 
     juce::Colour backgroundColour;

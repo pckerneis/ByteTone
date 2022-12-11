@@ -65,6 +65,9 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     setResizable(true, true);
     setResizeLimits(500, 200, 3000, 3000);
     setSize (500, 400);
+
+    setWantsKeyboardFocus(true);
+    Timer::callAfterDelay(300, [this] { grabKeyboardFocus(); }); // ensure that key presses are sent to the KeyPressTarget object
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()

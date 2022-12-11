@@ -191,6 +191,11 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
         return;
     }
 
+    if (nextRootExpr.get() != nullptr)
+    {
+        rootExpr.reset(nextRootExpr.release());
+    }
+
     if (rootExpr.get() == nullptr)
     {
         return;

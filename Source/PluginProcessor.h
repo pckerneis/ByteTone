@@ -67,7 +67,7 @@ public:
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
     void setCurrentCode(juce::String code) { 
         getCodeValueTree().setProperty("code", code, parameters.undoManager);
-        rootExpr.reset(interpreter.parse(code));
+        nextRootExpr.reset(interpreter.parse(code));
     }
 
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
@@ -93,6 +93,8 @@ private:
     double ratio;
 
     std::unique_ptr<Expr> rootExpr;
+    std::unique_ptr<Expr> nextRootExpr;
+
 
     Interpreter interpreter;
 

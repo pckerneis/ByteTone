@@ -4,7 +4,8 @@
 //==============================================================================
 ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcessor& p)
     : AudioProcessorEditor (&p),
-    audioProcessor(p)
+    audioProcessor(p),
+    waveform(p)
 {
     juce::LookAndFeel::setDefaultLookAndFeel(&lf);
 
@@ -62,12 +63,14 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     modeAttachment.reset(new ComboBoxAttachment(p.getParameters(), "mode", modeComboBox));
     addAndMakeVisible(modeComboBox);
 
+    addAndMakeVisible(waveform);
+
     setResizable(true, true);
     setResizeLimits(500, 200, 3000, 3000);
     setSize (500, 400);
 
     setWantsKeyboardFocus(true);
-    Timer::callAfterDelay(300, [this] { grabKeyboardFocus(); }); // ensure that key presses are sent to the KeyPressTarget object
+    Timer::callAfterDelay(300, [this] { grabKeyboardFocus(); });
 }
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
@@ -80,6 +83,7 @@ void ByteToneAudioProcessorEditor::updateAndCheckCode()
     {
         std::unique_ptr<Expr> rootExpr(Interpreter::parse(textEditor.getText()));
         audioProcessor.setCurrentCode(textEditor.getText());
+        console.setText("Successfully compiled.");
     }
     catch (ParseError error)
     {
@@ -117,6 +121,7 @@ void ByteToneAudioProcessorEditor::resized()
     const int comboWidth = 80;
     const int sliderWidth = 50;
     const int keyboardHeight = 80;
+    const int waveformHeight = 120;
 
     const int charW = 12;
 
@@ -138,6 +143,8 @@ void ByteToneAudioProcessorEditor::resized()
     runButton.setBounds(secondLine.removeFromRight(buttonWidth));
 
     console.setBounds(r.removeFromBottom(consoleHeight));
+
+    waveform.setBounds(r.removeFromBottom(waveformHeight));
 
     textEditor.setBounds(r);
 }

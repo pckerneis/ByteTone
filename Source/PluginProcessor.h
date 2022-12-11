@@ -63,9 +63,12 @@ public:
     int getNoteParamValue() const { return *note; }
     void setPlaying(bool shouldBePlaying) const { *playing = shouldBePlaying ? 1 : 0; }
     bool isPlaying() const { return *playing > 0; }
+    double getPositionInSource() const { return positionInSource; }
 
     juce::String getCurrentCode() const { return getCodeValueTree().getProperty("code"); }
-    void setCurrentCode(juce::String code) { 
+
+    void setCurrentCode(juce::String code)
+    { 
         getCodeValueTree().setProperty("code", code, parameters.undoManager);
         nextRootExpr.reset(interpreter.parse(code));
     }
@@ -94,7 +97,6 @@ private:
 
     std::unique_ptr<Expr> rootExpr;
     std::unique_ptr<Expr> nextRootExpr;
-
 
     Interpreter interpreter;
 

@@ -268,6 +268,10 @@ void ByteToneAudioProcessor::setStateInformation (const void* data, int sizeInBy
     {
         setCurrentCode(defaultProgram);
     }
+    else
+    {
+        setCurrentCode(getCurrentCode());
+    }
 }
 
 

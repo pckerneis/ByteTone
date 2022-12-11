@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "LookAndFeel.h"
 #include "CodeEditor.h"
+#include "Waveform.h"
 
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
@@ -28,9 +29,6 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-
-
-    //==============================================================================
     bool keyPressed(const KeyPress& key) override
     {
         if (key.getModifiers().isCommandDown()) {
@@ -77,6 +75,8 @@ private:
     juce::TextButton runButton;
     CodeEditor textEditor;
     juce::TextEditor console;
+
+    Waveform waveform;
 
     CustomLookAndFeel lf;
 

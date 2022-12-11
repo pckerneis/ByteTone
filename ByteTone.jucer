@@ -10,6 +10,7 @@
     </GROUP>
     <GROUP id="{2BB59562-F943-D599-E19B-620605384060}" name="Source">
       <GROUP id="{13D8CE1C-A9B9-6376-A543-14EF3E087B90}" name="Editor">
+        <FILE id="GtaaGO" name="CodeEditor.h" compile="0" resource="0" file="Source/CodeEditor.h"/>
         <FILE id="b9dneJ" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
         <FILE id="dUiWBk" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
         <FILE id="L7ZbPT" name="PluginEditor.cpp" compile="1" resource="0"

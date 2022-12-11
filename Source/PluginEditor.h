@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "LookAndFeel.h"
+#include "CodeEditor.h"
 
 typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
 typedef juce::AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
@@ -32,13 +33,13 @@ public:
     //==============================================================================
     bool keyPressed(const KeyPress& key) override
     {
-        if (key.getModifiers().isCommandDown() && key.isKeyCurrentlyDown(key.returnKey)) {
-            if (key.getModifiers().isShiftDown())
+        if (key.getModifiers().isCommandDown()) {
+            if (key.isKeyCurrentlyDown(key.returnKey))
             {
                 startStopButton.setToggleState(!audioProcessor.isPlaying(), NotificationType::sendNotification);
                 return true;
             }
-            else
+            else if (key.isKeyCurrentlyDown(key.spaceKey))
             {
                 updateAndCheckCode();
                 return true;
@@ -74,7 +75,7 @@ private:
 
     juce::TextButton settingsButton;
     juce::TextButton runButton;
-    juce::TextEditor textEditor;
+    CodeEditor textEditor;
     juce::TextEditor console;
 
     CustomLookAndFeel lf;

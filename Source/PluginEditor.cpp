@@ -31,8 +31,8 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
     addAndMakeVisible(settingsButton);
 
     runButton.setButtonText("Compile");
-    runButton.onClick = [this, &p] { 
-        p.setCurrentCode(textEditor.getText());
+    runButton.onClick = [this] {
+        updateAndCheckCode();
     };
     addAndMakeVisible(runButton);
 
@@ -72,6 +72,19 @@ ByteToneAudioProcessorEditor::ByteToneAudioProcessorEditor (ByteToneAudioProcess
 
 ByteToneAudioProcessorEditor::~ByteToneAudioProcessorEditor()
 {
+}
+
+void ByteToneAudioProcessorEditor::updateAndCheckCode()
+{
+    try
+    {
+        std::unique_ptr<Expr> rootExpr(Interpreter::parse(textEditor.getText()));
+        audioProcessor.setCurrentCode(textEditor.getText());
+    }
+    catch (ParseError error)
+    {
+        console.setText(error.getMessage());
+    }
 }
 
 #include "StandaloneWindow.h"

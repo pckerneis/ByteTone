@@ -40,7 +40,7 @@ public:
             }
             else
             {
-                audioProcessor.setCurrentCode(textEditor.getText());
+                updateAndCheckCode();
                 return true;
             }
         }
@@ -48,6 +48,8 @@ public:
         return false; // Key command not consumed
     }
 private:
+    void updateAndCheckCode();
+
     void openSettings();
     
     ApplicationCommandManager commandManager;

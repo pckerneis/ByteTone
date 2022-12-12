@@ -46,7 +46,8 @@ public:
     // TODO dedup
     float integerToSample(int integer)
     {
-        return (jlimit(0, 255, integer) / 128.0) - 1.0;
+        const int max = 255;
+        return juce::jmap((float)(integer & max), 0.0f, (float)max, -1.0f, 1.0f);
     }
 
     void timerCallback() override

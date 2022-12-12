@@ -161,15 +161,15 @@ private:
         case TokenType::MINUS:              return asInts ? (int)left - (int)right : (double)left - (double)right;
         case TokenType::STAR:               return asInts ? (int)left * (int)right : (double)left * (double)right;
         case TokenType::PLUS:               return asInts ? (int)left + (int)right : (double)left + (double)right;
-        case TokenType::MODULUS:            return asInts ? (int)left % (int)right : 0;
+        case TokenType::MODULUS:            return (int)left % (int)right;
         case TokenType::SLASH:              return (double)right == 0.0 ? 0 : (double)left / (double)right;
 
-        case TokenType::BITWISE_AND:        return asInts ? (int)left & (int)right : 0;
-        case TokenType::BITWISE_OR:         return asInts ? (int)left | (int)right : 0;
-        case TokenType::BITWISE_XOR:        return asInts ? (int)left ^ (int)right : 0;
+        case TokenType::BITWISE_AND:        return (int)left & (int)right;
+        case TokenType::BITWISE_OR:         return (int)left | (int)right;
+        case TokenType::BITWISE_XOR:        return (int)left ^ (int)right;
 
-        case TokenType::BIT_SHIFT_LEFT:     return asInts ? (int)left << (int)right : 0;
-        case TokenType::BIT_SHIFT_RIGHT:    return asInts ? (int)left >> (int)right : 0;
+        case TokenType::BIT_SHIFT_LEFT:     return (int)left << (int)right;
+        case TokenType::BIT_SHIFT_RIGHT:    return (int)left >> (int)right;
 
         case TokenType::GREATER:            return left > right;
         case TokenType::GREATER_EQUAL:      return left >= right;

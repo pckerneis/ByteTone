@@ -67,7 +67,7 @@ public:
 
             for (int i = 0; i < numSamples; ++i)
             {
-                float value = floatMode ? values[i] : integerToSample(values[i]);
+                float value = floatMode ? values[i].coercedToDouble() : integerToSample(values[i].coercedToDouble());
                 buffer.setSample(0, i, juce::jlimit(-1.0f, 1.0f, value));
             }
         }

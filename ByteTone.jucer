@@ -34,12 +34,15 @@
         <FILE id="UDFbyK" name="Expr.h" compile="0" resource="0" file="Source/Expr.h"/>
         <FILE id="NnEfrB" name="Interpreter.cpp" compile="1" resource="0" file="Source/Interpreter.cpp"/>
         <FILE id="EuGPGq" name="Interpreter.h" compile="0" resource="0" file="Source/Interpreter.h"/>
+        <FILE id="vefr7S" name="InterpreterTest.h" compile="0" resource="0"
+              file="Source/InterpreterTest.h"/>
         <FILE id="j6xwJi" name="ParseError.h" compile="0" resource="0" file="Source/ParseError.h"/>
         <FILE id="aGttfA" name="Parser.cpp" compile="1" resource="0" file="Source/Parser.cpp"/>
         <FILE id="vFiJhL" name="Parser.h" compile="0" resource="0" file="Source/Parser.h"/>
         <FILE id="fQv1rQ" name="Scanner.cpp" compile="1" resource="0" file="Source/Scanner.cpp"/>
         <FILE id="tp7bVO" name="Scanner.h" compile="0" resource="0" file="Source/Scanner.h"/>
         <FILE id="V0Z7SC" name="Token.h" compile="0" resource="0" file="Source/Token.h"/>
+        <FILE id="R3G6Uz" name="Var.h" compile="0" resource="0" file="Source/Var.h"/>
       </GROUP>
     </GROUP>
   </MAINGROUP>

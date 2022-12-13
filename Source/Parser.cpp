@@ -228,6 +228,11 @@ Expr* Parser::primary()
         return new LiteralExpr(previous().literal);
     }
 
+    if (match(juce::Array<TokenType>(TokenType::TRUE)) || match(juce::Array<TokenType>(TokenType::FALSE)))
+    {
+        return new LiteralExpr(previous().literal);
+    }
+
     if (match(juce::Array<TokenType>(TokenType::IDENTIFIER)))
     {
         return new IdentifierExpr(previous().lexeme);

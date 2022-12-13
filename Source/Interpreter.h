@@ -20,7 +20,7 @@ class MathLibrary : public juce::DynamicObject
 
 public:
     MathLibrary()
-    {
+    {/*
         setMethod("sin",    sin);
         setMethod("asin",   asin);
         setMethod("sinh",   sinh);
@@ -42,7 +42,7 @@ public:
         setMethod("exp",    exp);
         setMethod("pow",    pow);
         setMethod("sqrt",   sqrt);
-        setMethod("rand",   rand);
+        setMethod("rand",   rand);*/
     }
 
     static double getDouble(Args a, int pos) { return a.arguments[pos]; }
@@ -122,7 +122,8 @@ public:
 private:
     void reset()
     {
-        assignedValues.clear();
+        // TODO
+        //assignedValues.clear();
     }
 
     Var evaluate(const Expr* expr)
@@ -139,7 +140,7 @@ private:
     {
         Var cond = evaluate(expr.condition.get());
 
-        if (cond)
+        if (cond.coercedToBool())
         {
             return evaluate(expr.ifExpr.get());
         }
@@ -154,30 +155,44 @@ private:
         Var left = evaluate(expr.left.get());
         Var right = evaluate(expr.right.get());
 
-        bool asInts = left.isInt();
+        bool leftBool = left.coercedToBool();
+        bool rightBool = right.coercedToBool();
+
+        int leftInt = left.coercedToInt();
+        int rightInt = right.coercedToInt();
+
+        double leftDouble = left.coercedToDouble();
+        double rightDouble = right.coercedToDouble();
+
+        bool asDoubles = left.isDouble() || right.isDouble();
+
+        if (asDoubles)
+        {
+            // DBG("doubles right here!!");
+        }
         
         switch (expr.op.type)
         {
-        case TokenType::MINUS:              return asInts ? (int)left - (int)right : (double)left - (double)right;
-        case TokenType::STAR:               return asInts ? (int)left * (int)right : (double)left * (double)right;
-        case TokenType::PLUS:               return asInts ? (int)left + (int)right : (double)left + (double)right;
-        case TokenType::MODULUS:            return (int)left % (int)right;
-        case TokenType::SLASH:              return (double)right == 0.0 ? 0 : (double)left / (double)right;
+        case TokenType::MINUS:              return asDoubles ? Var(leftDouble - rightDouble) : Var(leftInt - rightInt);
+        case TokenType::STAR:               return asDoubles ? Var(leftDouble * rightDouble) : Var(leftInt * rightInt);
+        case TokenType::PLUS:               return asDoubles ? Var(leftDouble + rightDouble) : Var(leftInt + rightInt);
+        case TokenType::MODULUS:            return rightInt == 0 ? 0 : leftInt % rightInt;
+        case TokenType::SLASH:              return asDoubles ? (rightDouble == 0.0 ? Var(0.0) : Var(leftDouble / rightDouble)) : (rightInt == 0 ? 0 : Var(leftInt / rightInt));
 
-        case TokenType::BITWISE_AND:        return (int)left & (int)right;
-        case TokenType::BITWISE_OR:         return (int)left | (int)right;
-        case TokenType::BITWISE_XOR:        return (int)left ^ (int)right;
+        case TokenType::BITWISE_AND:        return leftInt & rightInt;
+        case TokenType::BITWISE_OR:         return leftInt | rightInt;
+        case TokenType::BITWISE_XOR:        return leftInt ^ rightInt;
 
-        case TokenType::BIT_SHIFT_LEFT:     return (int)left << (int)right;
-        case TokenType::BIT_SHIFT_RIGHT:    return (int)left >> (int)right;
+        case TokenType::BIT_SHIFT_LEFT:     return leftInt << rightInt;
+        case TokenType::BIT_SHIFT_RIGHT:    return leftInt >> rightInt;
 
-        case TokenType::GREATER:            return left > right;
-        case TokenType::GREATER_EQUAL:      return left >= right;
-        case TokenType::LESS:               return left < right;
-        case TokenType::LESS_EQUAL:         return left <= right;
+        case TokenType::GREATER:            return leftDouble >  rightDouble;
+        case TokenType::GREATER_EQUAL:      return leftDouble >= rightDouble;
+        case TokenType::LESS:               return leftDouble <  rightDouble;
+        case TokenType::LESS_EQUAL:         return leftDouble <= rightDouble;
 
-        case TokenType::EQUAL_EQUAL:        return left == right;
-        case TokenType::NOT_EQUAL:          return left != right;
+        case TokenType::EQUAL_EQUAL:        return leftDouble == rightDouble;
+        case TokenType::NOT_EQUAL:          return leftDouble != rightDouble;
         }
 
         return 0;
@@ -190,13 +205,13 @@ private:
         switch (expr.op.type)
         {
         case TokenType::BANG:
-            return ! right;
+            return Var(! right.coercedToBool());
             break;
         case TokenType::MINUS:
-            return right.isInt() ? -(int)right : -(double)right;
+            return right.isDouble() ? Var(-right.getDoubleValue()) : Var(-right.coercedToInt());
             break;
         case TokenType::BITWISE_COMPLEMENT:
-            return right.isInt() ? ~(int)right : 0;
+            return ~(int)right.coercedToInt();
             break;
         }
 
@@ -215,12 +230,13 @@ private:
             return t;
         }
 
-        if (assignedValues.contains(expr.name))
-        {
-            return assignedValues[expr.name];
-        }
+        // TODO
+        //if (assignedValues.contains(expr.name))
+        //{
+        //    return assignedValues[expr.name];
+        //}
 
-        return mathLibrary.getProperty(expr.name);
+        // return mathLibrary.getProperty(expr.name);
     }
 
     Var visitCall(const CallExpr& expr) override
@@ -234,7 +250,8 @@ private:
             arguments.add(evaluate(argument));
         }
 
-        if (!callee.isMethod())
+        // TODO
+ /*       if (!callee.isMethod())
         {
             return 0;
         }
@@ -242,18 +259,23 @@ private:
         const juce::var::NativeFunctionArgs args(callee, arguments.begin(), arguments.size());
 
         if (auto function = callee.getNativeFunction())
-            return function(args);
+            return function(args);*/
+
+        return 0;
     }
 
     Var visitAssignment(const AssignExpr& expr) override
     {
+        // TODO
         Var value = evaluate(expr.value.get());
-        assignedValues.set(expr.assignee, value);
+        // assignedValues.set(expr.assignee, value);
         return value;
     }
 
     MathLibrary mathLibrary;
-    juce::HashMap<juce::String, juce::var> assignedValues;
+    // juce::HashMap<juce::String, Var> assignedValues;
 
     int t = 0;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Interpreter)
 };

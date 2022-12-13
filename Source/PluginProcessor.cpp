@@ -181,8 +181,7 @@ void ByteToneAudioProcessor::applyMasterGain(juce::AudioBuffer<float>& bufferToF
 
 float ByteToneAudioProcessor::integerToSample(int integer)
 {
-    const int max = 255;
-    return juce::jmap((float)(integer & max), 0.0f, (float)max, -1.0f, 1.0f);
+    return (float)(integer & 255) / 127.5f - 1.0f;
 }
 
 void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
@@ -214,7 +213,7 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
     while (--numSamples >= 0)
     {
         int pos = (int)floor(positionInSource - sourceStart);
-        float value = floatMode ? values[pos] : integerToSample(values[pos]);
+        float value = floatMode ? values[pos].coercedToDouble() : integerToSample(values[pos].coercedToDouble());
         *outL++ += value;
 
         if (outR != nullptr)

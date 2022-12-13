@@ -11,11 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-
-typedef juce::var Var;
+#include "Var.h"
 
 enum class TokenType {
     EOF_,
+
+    TRUE,
+    FALSE,
 
     IDENTIFIER,
 

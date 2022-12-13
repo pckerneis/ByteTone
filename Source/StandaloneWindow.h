@@ -14,6 +14,8 @@
 
 #include "../modules/juce_audio_plugin_client/Standalone/juce_StandaloneFilterWindow.h"
 
+#include "InterpreterTest.h"
+
 using namespace juce;
 
 class StandaloneFilterApp : public JUCEApplication
@@ -21,6 +23,9 @@ class StandaloneFilterApp : public JUCEApplication
 public:
     StandaloneFilterApp()
     {
+        juce::UnitTestRunner testRunner;
+        testRunner.runAllTests();
+
         PluginHostType::jucePlugInClientCurrentWrapperType = AudioProcessor::wrapperType_Standalone;
 
         PropertiesFile::Options options;

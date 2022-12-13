@@ -156,7 +156,8 @@ void Scanner::number()
     juce::String text = source.substring(start, current);
     int intValue = std::stoi(text.toStdString());
     double doubleValue = std::stod(text.toStdString());
-    tokens.add(Token(TokenType::NUMBER, fractionalPart ? doubleValue : intValue, start, text));
+    Var literal = fractionalPart ? Var(doubleValue) : Var(intValue);
+    tokens.add(Token(TokenType::NUMBER, literal, start, text));
 }
 
 void Scanner::identifier()
@@ -164,8 +165,19 @@ void Scanner::identifier()
     while (isAlphaNumeric(peek())) advance();
 
     juce::String text = source.substring(start, current);
-    tokens.add(Token(TokenType::IDENTIFIER, 0, start, text));
 
+    if (text == "true")
+    {
+        tokens.add(Token(TokenType::TRUE, Var(true), start, text));
+    }
+    else if (text == "false")
+    {
+        tokens.add(Token(TokenType::FALSE, Var(false), start, text));
+    }
+    else
+    {
+        tokens.add(Token(TokenType::IDENTIFIER, 0, start, text));
+    }
 }
 
 void Scanner::addToken(TokenType type)

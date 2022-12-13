@@ -13,87 +13,8 @@
 #include "AstVisitor.h"
 #include "Scanner.h"
 #include "Parser.h"
-
-class MathLibrary
-{
-    using Args = Var::Args;
-public:
-    MathLibrary()
-    {
-        registerFunction("sin",    sin);
-        registerFunction("asin",   asin);
-        registerFunction("sinh",   sinh);
-        registerFunction("asinh",  asinh);
-        registerFunction("cos",    cos);
-        registerFunction("acos",   acos);
-        registerFunction("tan",    tan);
-        registerFunction("atan",   atan);
-        registerFunction("tanh",   tanh);
-        registerFunction("atanh",  atanh);
-        registerFunction("ceil",   ceil);
-        registerFunction("floor",  floor);
-        registerFunction("round",  round);
-        registerFunction("max",    max);
-        registerFunction("min",    min);
-        registerFunction("sign",   sign);
-        registerFunction("log",    log);
-        registerFunction("log10",  log10);
-        registerFunction("exp",    exp);
-        registerFunction("pow",    pow);
-        registerFunction("sqrt",   sqrt);
-        registerFunction("rand",   rand);
-    }
-
-    void registerFunction(juce::String name, Var::NativeFunction function)
-    {
-        registeredFunctions.set(name, function);
-    }
-
-    bool hasFunction(juce::String name) const
-    {
-        return registeredFunctions.contains(name);
-    }
-
-    Var getFunctionVar(juce::String name) const
-    {
-        return Var(registeredFunctions[name]);
-    }
-
-    static double getDouble(Args a, int pos) { return a.arguments[pos].coercedToDouble(); }
-
-    static Var sin(Args a)      { return std::sin(getDouble(a, 0)); }
-    static Var asin(Args a)     { return std::asin(getDouble(a, 0)); }
-    static Var sinh(Args a)     { return std::sinh(getDouble(a, 0)); }
-    static Var asinh(Args a)    { return std::asinh(getDouble(a, 0)); }
-    static Var cos(Args a)      { return std::cos(getDouble(a, 0)); }
-    static Var acos(Args a)     { return std::acos(getDouble(a, 0)); }
-    static Var cosh(Args a)     { return std::cosh(getDouble(a, 0)); }
-    static Var acosh(Args a)    { return std::acosh(getDouble(a, 0)); }
-    static Var tan(Args a)      { return std::tan(getDouble(a, 0)); }
-    static Var atan(Args a)     { return std::atan(getDouble(a, 0)); }
-    static Var tanh(Args a)     { return std::tanh(getDouble(a, 0)); }
-    static Var atanh(Args a)    { return std::atanh(getDouble(a, 0)); }
-    static Var ceil(Args a)     { return std::ceil(getDouble(a, 0)); }
-    static Var floor(Args a)    { return std::floor(getDouble(a, 0)); }
-    static Var round(Args a)    { return std::round(getDouble(a, 0)); }
-    static Var max(Args a)      { return std::max(getDouble(a, 0), getDouble(a, 1)); }
-    static Var min(Args a)      { return std::min(getDouble(a, 0), getDouble(a, 1)); }
-    static Var sign(Args a)     { return signum(getDouble(a, 0)); }
-    static Var log(Args a)      { return std::log(getDouble(a, 0)); }
-    static Var log10(Args a)    { return std::log10(getDouble(a, 0)); }
-    static Var exp(Args a)      { return std::exp(getDouble(a, 0)); }
-    static Var pow(Args a)      { return std::pow(getDouble(a, 0), getDouble(a, 1)); }
-    static Var sqrt(Args a)     { return std::sqrt(getDouble(a, 0)); }
-    static Var rand(Args a)     { return std::rand(); }
-    static Var fmod(Args a)     { return std::fmod(getDouble(a, 0), getDouble(a, 1)); }
-
-    template <typename T>
-    static int signum(T val) {
-        return (T(0) < val) - (val < T(0));
-    }
-
-    juce::HashMap<juce::String, Var::NativeFunction> registeredFunctions;
-};  
+#include "MathLibrary.h"
+#include "AudioLibrary.h"
 
 class Interpreter : AstVisitor
 {
@@ -180,11 +101,6 @@ private:
         double rightDouble = right.coercedToDouble();
 
         bool asDoubles = left.isDouble() || right.isDouble();
-
-        if (asDoubles)
-        {
-            // DBG("doubles right here!!");
-        }
         
         switch (expr.op.type)
         {
@@ -250,7 +166,17 @@ private:
             return assignedValues[expr.name];
         }
 
-        return mathLibrary.getFunctionVar(expr.name);
+        if (mathLibrary.hasFunction(expr.name))
+        {
+            return mathLibrary.getFunctionVar(expr.name);
+        }
+
+        if (audioLibrary.hasFunction(expr.name))
+        {
+            return audioLibrary.getFunctionVar(expr.name);
+        }
+
+        return Var();
     }
 
     Var visitCall(const CallExpr& expr) override
@@ -276,6 +202,7 @@ private:
     }
 
     MathLibrary mathLibrary;
+    AudioLibrary audioLibrary;
     juce::HashMap<juce::String, Var> assignedValues;
 
     int t = 0;

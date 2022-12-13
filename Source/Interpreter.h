@@ -14,38 +14,52 @@
 #include "Scanner.h"
 #include "Parser.h"
 
-class MathLibrary : public juce::DynamicObject
+class MathLibrary
 {
-    typedef const juce::var::NativeFunctionArgs& Args;
-
+    using Args = Var::Args;
 public:
     MathLibrary()
-    {/*
-        setMethod("sin",    sin);
-        setMethod("asin",   asin);
-        setMethod("sinh",   sinh);
-        setMethod("asinh",  asinh);
-        setMethod("cos",    cos);
-        setMethod("acos",   acos);
-        setMethod("tan",    tan);
-        setMethod("atan",   atan);
-        setMethod("tanh",   tanh);
-        setMethod("atanh",  atanh);
-        setMethod("ceil",   ceil);
-        setMethod("floor",  floor);
-        setMethod("round",  round);
-        setMethod("max",    max);
-        setMethod("min",    min);
-        setMethod("sign",   sign);
-        setMethod("log",    log);
-        setMethod("log10",  log10);
-        setMethod("exp",    exp);
-        setMethod("pow",    pow);
-        setMethod("sqrt",   sqrt);
-        setMethod("rand",   rand);*/
+    {
+        registerFunction("sin",    sin);
+        registerFunction("asin",   asin);
+        registerFunction("sinh",   sinh);
+        registerFunction("asinh",  asinh);
+        registerFunction("cos",    cos);
+        registerFunction("acos",   acos);
+        registerFunction("tan",    tan);
+        registerFunction("atan",   atan);
+        registerFunction("tanh",   tanh);
+        registerFunction("atanh",  atanh);
+        registerFunction("ceil",   ceil);
+        registerFunction("floor",  floor);
+        registerFunction("round",  round);
+        registerFunction("max",    max);
+        registerFunction("min",    min);
+        registerFunction("sign",   sign);
+        registerFunction("log",    log);
+        registerFunction("log10",  log10);
+        registerFunction("exp",    exp);
+        registerFunction("pow",    pow);
+        registerFunction("sqrt",   sqrt);
+        registerFunction("rand",   rand);
     }
 
-    static double getDouble(Args a, int pos) { return a.arguments[pos]; }
+    void registerFunction(juce::String name, Var::NativeFunction function)
+    {
+        registeredFunctions.set(name, function);
+    }
+
+    bool hasFunction(juce::String name) const
+    {
+        return registeredFunctions.contains(name);
+    }
+
+    Var getFunctionVar(juce::String name) const
+    {
+        return Var(registeredFunctions[name]);
+    }
+
+    static double getDouble(Args a, int pos) { return a.arguments[pos].coercedToDouble(); }
 
     static Var sin(Args a)      { return std::sin(getDouble(a, 0)); }
     static Var asin(Args a)     { return std::asin(getDouble(a, 0)); }
@@ -77,6 +91,8 @@ public:
     static int signum(T val) {
         return (T(0) < val) - (val < T(0));
     }
+
+    juce::HashMap<juce::String, Var::NativeFunction> registeredFunctions;
 };  
 
 class Interpreter : AstVisitor
@@ -234,7 +250,7 @@ private:
             return assignedValues[expr.name];
         }
 
-        // return mathLibrary.getProperty(expr.name);
+        return mathLibrary.getFunctionVar(expr.name);
     }
 
     Var visitCall(const CallExpr& expr) override
@@ -248,17 +264,8 @@ private:
             arguments.add(evaluate(argument));
         }
 
-        //if (!callee.isMethod())
-        //{
-        //    return 0;
-        //}
-
-        //const juce::var::NativeFunctionArgs args(callee, arguments.begin(), arguments.size());
-
-        //if (auto function = callee.getNativeFunction())
-        //    return function(args);
-
-        return 0;
+        const Var::Args args(arguments.begin(), arguments.size());
+        return callee.call(args);
     }
 
     Var visitAssignment(const AssignExpr& expr) override

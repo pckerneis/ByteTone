@@ -13,14 +13,33 @@
 class Var
 {
 public:
+    struct Args
+    {
+        Args(const Var* args, int numArgs) noexcept
+            : arguments(args), numArguments(numArgs)
+        {
+        }
+
+        const Var* arguments;
+        int numArguments;
+    };
+
+    using NativeFunction = std::function<Var(const Args&)>;
+
     enum class Type {
-        BOOL, INT, DOUBLE, UNDEFINED
+        BOOL, INT, DOUBLE, UNDEFINED, FUNCTION
     };
 
     bool operator ==(const Var& other) const
     {
         if (type != other.type)
         {
+            return false;
+        }
+
+        if (isFunction())
+        {
+            // TODO
             return false;
         }
 
@@ -34,7 +53,7 @@ public:
 
     }
 
-    Var(const Var& other) : type(other.type), boolValue(other.boolValue), intValue(other.intValue), doubleValue(other.doubleValue)
+    Var(const Var& other) : type(other.type), boolValue(other.boolValue), intValue(other.intValue), doubleValue(other.doubleValue), funcValue(other.funcValue)
     {
 
     }
@@ -54,30 +73,48 @@ public:
         
     }
 
+    Var(NativeFunction function) : type(Type::FUNCTION), boolValue(false), intValue(0), doubleValue(0.0), funcValue(function)
+    {
+    }
+
     bool isUndefined() const { return type == Type::UNDEFINED; }
     bool isBool() const { return type == Type::BOOL; }
     bool isInt() const { return type == Type::INT; }
     bool isDouble() const { return type == Type::DOUBLE; }
+    bool isFunction() const { return type == Type::FUNCTION; }
 
     bool getBoolValue() const { return boolValue; }
     int getIntValue() const { return intValue; }
     double getDoubleValue() const { return doubleValue; }
 
+    Var call(Args args) const
+    {
+        if (!isFunction())
+        {
+            return Var();
+        }
 
-    bool coercedToBool() const {
+        return funcValue(args);
+    }
+
+    bool coercedToBool() const
+    {
         if (isUndefined()) return false;
+        if (isFunction()) return false; // TODO
         if (isBool()) return getBoolValue();
         if (isInt()) return bool(getIntValue());
         return bool(getDoubleValue());
     }
 
-    int coercedToInt() const {
-        if (isUndefined()) return 0;
+    int coercedToInt() const
+    {
+        if (isUndefined() || isFunction()) return 0;
         return isInt() ? getIntValue() : (isDouble() ? (int)getDoubleValue() : (int)getBoolValue());
     }
 
-    double coercedToDouble() const {
-        if (isUndefined()) return 0.0;
+    double coercedToDouble() const
+    {
+        if (isUndefined() || isFunction()) return 0.0;
         return isDouble() ? getDoubleValue() : (isInt() ? (double)getIntValue() : (double)getBoolValue());
     }
 
@@ -86,6 +123,7 @@ private:
     bool boolValue;
     int intValue;
     double doubleValue;
+    NativeFunction funcValue;
 
     JUCE_LEAK_DETECTOR(Var)
 };

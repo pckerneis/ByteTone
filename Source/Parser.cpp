@@ -164,7 +164,7 @@ Expr* Parser::factor()
     while (match(juce::Array<TokenType>(TokenType::SLASH, TokenType::STAR, TokenType::MODULUS)))
     {
         Token oper = previous();
-        std::unique_ptr<Expr> right(factor());
+        std::unique_ptr<Expr> right(unary());
         expr.reset(new BinaryExpr(expr.release(), oper, right.release()));
     }
 

@@ -185,6 +185,15 @@ public:
         expect(eval("-12 != 4") == Var(-12 != 4));
         expect(eval("1.0 != 4") == Var(1.0 != 4));
         expect(eval("0 != 4.0") == Var(0 != 4.0));
+
+        beginTest("complex one");
+        expect(interpretAt(158955, "t>>5|t>>4") == Var(14319));
+        expect(interpretAt(158955, "t%42") == Var(27));
+        expect(interpretAt(158955, "42*(t>>4)") == Var(417228));
+        expectEquals(interpretAt(158955, "27*(t>>4)").getIntValue(), 268218);
+        expectEquals(interpretAt(158955, "t%42*(t>>4)").getIntValue(), 268218);
+        expectEquals(interpretAt(158955, "t>>5|t>>4|(t%42*(t>>4))").getIntValue(), 276479);
+        expectEquals(interpretAt(158955, "t>>5|t>>4|(t%42*(t>>4)|357052691-(t>>4))/(t>>16)^(t|t>>4)").getIntValue(), 178550783);
     }
 
     Var eval(juce::String source)

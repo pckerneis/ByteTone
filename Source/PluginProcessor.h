@@ -76,7 +76,6 @@ public:
     juce::AudioProcessorValueTreeState& getParameters() { return parameters; }
 
 private:
-    float integerToSample(int integer);
     void writeBuffer(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples);
 
     juce::ValueTree getCodeValueTree() { return parameters.state.getChildWithName("CODE"); }

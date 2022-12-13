@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 
+#include "ByteBeat.h"
+
 //==============================================================================
 /*
 */
@@ -43,13 +45,6 @@ public:
         audioVisualiserComponent.setBounds(getLocalBounds());
     }
 
-    // TODO dedup
-    float integerToSample(int integer)
-    {
-        const int max = 255;
-        return juce::jmap((float)(integer & max), 0.0f, (float)max, -1.0f, 1.0f);
-    }
-
     void timerCallback() override
     {
         int numSamples = audioProcessor.getSampleRateParamValue() / 10;
@@ -67,7 +62,7 @@ public:
 
             for (int i = 0; i < numSamples; ++i)
             {
-                float value = floatMode ? values[i].coercedToDouble() : integerToSample(values[i].coercedToDouble());
+                float value = floatMode ? values[i].coercedToDouble() : ByteBeat::integerToSample(values[i].coercedToDouble());
                 buffer.setSample(0, i, juce::jlimit(-1.0f, 1.0f, value));
             }
         }

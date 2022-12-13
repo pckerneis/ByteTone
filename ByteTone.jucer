@@ -23,6 +23,7 @@
         <FILE id="Nv4qLd" name="Waveform.h" compile="0" resource="0" file="Source/Waveform.h"/>
       </GROUP>
       <GROUP id="{C46DA32B-3B29-14A3-FE17-80A85ED2AF2B}" name="Audio">
+        <FILE id="QkL0Ag" name="ByteBeat.h" compile="0" resource="0" file="Source/ByteBeat.h"/>
         <FILE id="nHuyDV" name="PluginProcessor.cpp" compile="1" resource="0"
               file="Source/PluginProcessor.cpp"/>
         <FILE id="gmGRGl" name="PluginProcessor.h" compile="0" resource="0"

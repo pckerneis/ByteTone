@@ -122,8 +122,7 @@ public:
 private:
     void reset()
     {
-        // TODO
-        //assignedValues.clear();
+        assignedValues.clear();
     }
 
     Var evaluate(const Expr* expr)
@@ -230,11 +229,10 @@ private:
             return t;
         }
 
-        // TODO
-        //if (assignedValues.contains(expr.name))
-        //{
-        //    return assignedValues[expr.name];
-        //}
+        if (assignedValues.contains(expr.name))
+        {
+            return assignedValues[expr.name];
+        }
 
         // return mathLibrary.getProperty(expr.name);
     }
@@ -250,30 +248,28 @@ private:
             arguments.add(evaluate(argument));
         }
 
-        // TODO
- /*       if (!callee.isMethod())
-        {
-            return 0;
-        }
+        //if (!callee.isMethod())
+        //{
+        //    return 0;
+        //}
 
-        const juce::var::NativeFunctionArgs args(callee, arguments.begin(), arguments.size());
+        //const juce::var::NativeFunctionArgs args(callee, arguments.begin(), arguments.size());
 
-        if (auto function = callee.getNativeFunction())
-            return function(args);*/
+        //if (auto function = callee.getNativeFunction())
+        //    return function(args);
 
         return 0;
     }
 
     Var visitAssignment(const AssignExpr& expr) override
     {
-        // TODO
         Var value = evaluate(expr.value.get());
-        // assignedValues.set(expr.assignee, value);
+        assignedValues.set(expr.assignee, value);
         return value;
     }
 
     MathLibrary mathLibrary;
-    // juce::HashMap<juce::String, Var> assignedValues;
+    juce::HashMap<juce::String, Var> assignedValues;
 
     int t = 0;
 

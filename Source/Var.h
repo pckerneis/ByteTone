@@ -10,18 +10,23 @@
 
 #pragma once
 
+#include "Environment.h"
+
 class Var
 {
 public:
     struct Args
     {
-        Args(const Var* args, int numArgs) noexcept
-            : arguments(args), numArguments(numArgs)
+        Args(const Var* args, int numArgs, Environment environment) noexcept
+            : arguments(args), numArguments(numArgs), env(environment)
         {
         }
 
         const Var* arguments;
         int numArguments;
+        Environment env;
+
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Args)
     };
 
     using NativeFunction = std::function<Var(const Args&)>;
@@ -49,6 +54,11 @@ public:
     }
 
     Var() : type(Type::UNDEFINED), boolValue(false), intValue(0), doubleValue(0)
+    {
+
+    }
+
+    Var(Var& other) : type(other.type), boolValue(other.boolValue), intValue(other.intValue), doubleValue(other.doubleValue), funcValue(other.funcValue)
     {
 
     }
@@ -87,7 +97,7 @@ public:
     int getIntValue() const { return intValue; }
     double getDoubleValue() const { return doubleValue; }
 
-    Var call(Args args) const
+    Var call(const Args& args) const
     {
         if (!isFunction())
         {

@@ -58,7 +58,8 @@ public:
 
             Array<Var> values = interpreter.generateRange(audioProcessor.getCurrentCode(),
                 (int)audioProcessor.getPositionInSource(),
-                numSamples);
+                numSamples,
+                Environment::withTickRate(audioProcessor.getSampleRateParamValue()));
 
             for (int i = 0; i < numSamples; ++i)
             {

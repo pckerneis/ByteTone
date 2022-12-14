@@ -15,26 +15,27 @@
 #include "Parser.h"
 #include "MathLibrary.h"
 #include "AudioLibrary.h"
+#include "Environment.h"
 
 class Interpreter : AstVisitor
 {
 public:
-    Interpreter()
+    Interpreter(): env(Environment::withTickRate(1))
     {
     }
 
-    juce::Array<Var> generate(const juce::String source, int numSamples)
+    juce::Array<Var> generate(const juce::String source, int numSamples, Environment env)
     {
-        return generateRange(source, 0, numSamples);
+        return generateRange(source, 0, numSamples, env);
     }
 
-    juce::Array<Var> generateRange(const juce::String source, int startSample, int numSamples)
+    juce::Array<Var> generateRange(const juce::String source, int startSample, int numSamples, Environment env)
     {
         std::unique_ptr<Expr> expr(parse(source));
-        return evaluateRange(expr.get(), startSample, numSamples);
+        return evaluateRange(expr.get(), startSample, numSamples, env);
     }
 
-    juce::Array<Var> evaluateRange(const Expr* expr, int startSample, int numSamples)
+    juce::Array<Var> evaluateRange(const Expr* expr, int startSample, int numSamples, Environment env)
     {
         reset();
 
@@ -43,7 +44,7 @@ public:
         for (int i = 0; i < numSamples; ++i)
         {
             t = startSample + i;
-            output.add(evaluate(expr));
+            output.add(evaluate(expr, env));
         }
 
         return output;
@@ -54,6 +55,12 @@ public:
         Scanner scanner(source);
         Parser parser(scanner.scanTokens());
         return parser.parse();
+    }
+
+    Var evaluate(const Expr* expr, Environment environment)
+    {
+        env = environment;
+        return expr->accept(this);
     }
 
 private:
@@ -190,7 +197,7 @@ private:
             arguments.add(evaluate(argument));
         }
 
-        const Var::Args args(arguments.begin(), arguments.size());
+        const Var::Args args(arguments.begin(), arguments.size(), env);
         return callee.call(args);
     }
 
@@ -204,6 +211,7 @@ private:
     MathLibrary mathLibrary;
     AudioLibrary audioLibrary;
     juce::HashMap<juce::String, Var> assignedValues;
+    Environment env;
 
     int t = 0;
 

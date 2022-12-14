@@ -204,7 +204,7 @@ public:
     Var interpretAt(int position, juce::String source)
     {
         Interpreter interpreter;
-        return interpreter.generateRange(source, position, 1)[0];
+        return interpreter.generateRange(source, position, 1, Environment::withTickRate(8000))[0];
     }
 };
 

@@ -12,7 +12,16 @@
 
 struct Environment
 {
-    Environment(int rate): tickRate(rate) {}
+    static Environment withTickRate(int rate)
+    {
+        Environment env(rate);
+        return env;
+    }
 
-    const int tickRate;
+    Environment(const Environment& other): tickRate(other.tickRate) { }
+
+    int tickRate;
+
+private:
+    Environment(int rate) : tickRate(rate) {}
 };

@@ -199,7 +199,8 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
     ratio = getSampleRateParamValue() / getSampleRate();
     int sourceStart = floor(positionInSource);
     int numSourceSamples = 1 + ceil((1 + numSamples) * ratio);
-    Array<Var> values = interpreter.evaluateRange(rootExpr.get(), sourceStart, numSourceSamples);
+    Array<Var> values = interpreter.evaluateRange(rootExpr.get(), sourceStart, numSourceSamples,
+        Environment::withTickRate(getSampleRateParamValue()));
     bool floatMode = getModeParamValue() == EvaluationMode::FLOAT;
 
     float* outL = outputBuffer.getWritePointer(0, startSample);

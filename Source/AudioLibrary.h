@@ -24,8 +24,12 @@ public:
         registerFunction("dB", dB);
     }
 
-    static Var sine(const Args& a) { return Var(std::sin(getDouble(a, 0) * juce::MathConstants<double>::twoPi / (double)a.env.tickRate)); }
-    static Var dB(const Args& a) { return juce::Decibels::decibelsToGain(getDouble(a, 0)); }
+    static Var sine(const Args* a)
+    {
+        return Var(std::sin(getDouble(a, 0) * juce::MathConstants<double>::twoPi / (double)a->env->tickRate));
+    }
+
+    static Var dB(const Args* a) { return juce::Decibels::decibelsToGain(getDouble(a, 0)); }
 };
 
 class AudioLibraryTest : juce::UnitTest
@@ -35,44 +39,58 @@ public:
 
     void runTest() override
     {
+        const double epsilon = 1e-6;
+
+        beginTest("dB");
+
+        std::vector<std::pair<double, double>> dbTestData {
+            { 0.0,   1.0 },
+            { -3.0,  0.707946 },
+            { -6.0,  0.501187 },
+            { -12.0, 0.251189 },
+            { -15.0, 0.177828 },
+            { -21.0, 0.0891251 }
+        };
+
+        for (auto data : dbTestData)
+        {
+            std::unique_ptr<Var::Args> args(argDouble(data.first, 1));
+            double actual = AudioLibrary::dB(args.get()).getDoubleValue();
+            double expected = data.second;
+            expectLessThan(std::abs(expected - actual), epsilon, juce::String("Got ") << actual << " instead of " << expected << ".");
+        }
 
         beginTest("sine");
 
-        Environment env1 = Environment::withTickRate(1);
+        std::vector<std::pair<std::pair<int, double>, double>> sineTestData {
+            {{ 1, 0.0  },  0.0 },
+            {{ 1, 0.25 },  1.0 },
+            {{ 1, 0.5  },  0.0 },
+            {{ 1, 0.75 }, -1.0 },
+            {{ 1, 1.0  },  0.0 },
+            {{ 8000, 0.0 },     0.0 },
+            {{ 8000, 2000.0 },  1.0 },
+            {{ 8000, 4000.0 },  0.0 },
+            {{ 8000, 6000.0 }, -1.0 },
+            {{ 8000, 8000.0 },  0.0 }
+        };
 
-        juce::Array<Var> arguments0;
-        arguments0.add(Var(0.0));
-        const Var::Args args0(arguments0.begin(), arguments0.size(), env1);
-        expectEquals(AudioLibrary::sine(args0).getDoubleValue(), 0.0);
-
-        double epsilon = 0.000001;
-
-        juce::Array<Var> arguments1;
-        arguments1.add(Var(1.0));
-        const Var::Args args1(arguments1.begin(), arguments1.size(), env1);
-        expectLessThan(std::abs(AudioLibrary::sine(args1).getDoubleValue()), epsilon);
-
-        juce::Array<Var> arguments05;
-        arguments05.add(Var(0.5));
-        const Var::Args args05(arguments05.begin(), arguments05.size(), env1);
-        expectLessThan(std::abs(AudioLibrary::sine(args05).getDoubleValue()), epsilon);
-
-        juce::Array<Var> arguments025;
-        arguments025.add(Var(0.25));
-        const Var::Args args025(arguments025.begin(), arguments025.size(), env1);
-        expectLessThan(1.0 - std::abs(AudioLibrary::sine(args025).getDoubleValue()), epsilon);
-
-        juce::Array<Var> arguments075;
-        arguments075.add(Var(0.75));
-        const Var::Args args075(arguments075.begin(), arguments075.size(), env1);
-        expectLessThan(1.0 - std::abs(AudioLibrary::sine(args075).getDoubleValue()), epsilon);
+        for (auto data : sineTestData)
+        {
+            double tickRate = data.first.first;
+            double t = data.first.second;
+            std::unique_ptr<Var::Args> args(argDouble(t, tickRate));
+            double expected = data.second;
+            double actual = AudioLibrary::sine(args.get()).getDoubleValue();
+            expectLessThan(std::abs(expected - actual), epsilon);
+        }
     }
 
-    Var::Args argDouble(double value)
+    Var::Args* argDouble(double value, int tickRate)
     {
-        juce::Array<Var> arguments;
-        arguments.add(Var(value));
-        return Var::Args(arguments.begin(), arguments.size(), Environment::withTickRate(8000));
+        std::vector<Var> arguments;
+        arguments.push_back(Var(value));
+        return new Var::Args(arguments, arguments.size(), &Environment::withTickRate(tickRate));
     }
 };
 

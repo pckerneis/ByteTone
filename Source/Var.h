@@ -17,19 +17,19 @@ class Var
 public:
     struct Args
     {
-        Args(const Var* args, int numArgs, Environment environment) noexcept
+        Args(std::vector<Var>& args, int numArgs, Environment* environment) noexcept
             : arguments(args), numArguments(numArgs), env(environment)
         {
         }
 
-        const Var* arguments;
-        int numArguments;
-        Environment env;
+        const std::vector<Var> arguments;
+        const int numArguments;
+        const Environment* env;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Args)
     };
 
-    using NativeFunction = std::function<Var(const Args&)>;
+    using NativeFunction = std::function<Var(const Args*)>;
 
     enum class Type {
         BOOL, INT, DOUBLE, UNDEFINED, FUNCTION
@@ -104,7 +104,7 @@ public:
             return Var();
         }
 
-        return funcValue(args);
+        return funcValue(&args);
     }
 
     bool coercedToBool() const

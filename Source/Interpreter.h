@@ -190,14 +190,14 @@ private:
     {
         Var callee = evaluate(expr.callee.get());
 
-        juce::Array<Var> arguments;
+        std::vector<Var> arguments;
 
         for (Expr* argument : expr.arguments)
         {
-            arguments.add(evaluate(argument));
+            arguments.push_back(evaluate(argument));
         }
 
-        const Var::Args args(arguments.begin(), arguments.size(), env);
+        const Var::Args args(arguments, arguments.size(), &env);
         return callee.call(args);
     }
 

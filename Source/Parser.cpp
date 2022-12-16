@@ -214,11 +214,15 @@ Expr* Parser::finishCall(Expr* callee)
             arguments.add(expression());
         } 
         while (match(TokenType::COMMA));
+
+        Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments");
+        return new CallExpr(calleePtr.release(), paren, arguments);
+    }
+    else
+    {
+        return new CallExpr(calleePtr.release(), previous(), arguments);
     }
 
-    Token paren = consume(TokenType::RIGHT_PAREN, "Expect ')' after arguments");
-
-    return new CallExpr(calleePtr.release(), paren, arguments);
 }
 
 Expr* Parser::primary()
@@ -250,7 +254,31 @@ Expr* Parser::primary()
         return new GroupingExpr(expr.release());
     }
 
+    if (match(juce::Array<TokenType>(TokenType::LEFT_SQUARE_BRACKET)))
+    {
+        return finishArray(previous());
+    }
+
     throw error(peek(), "Expect expression.");
+}
+
+Expr* Parser::finishArray(Token leftBracket)
+{
+    juce::OwnedArray<Expr> elements;
+
+    if (!match(TokenType::RIGHT_SQUARE_BRACKET)) {
+        do
+        {
+            elements.add(expression());
+        } while (match(TokenType::COMMA));
+
+        Token rightBracket = consume(TokenType::RIGHT_SQUARE_BRACKET, "Expect ']' after elements");
+        return new ArrayExpr(leftBracket, rightBracket, elements);
+    }
+    else
+    {
+        return new ArrayExpr(leftBracket, previous(), elements);
+    }
 }
 
 bool Parser::match(juce::Array<TokenType> types)

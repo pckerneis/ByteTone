@@ -208,6 +208,11 @@ private:
         return value;
     }
 
+    Var visitArray(const ArrayExpr& expr) override
+    {
+        return Var();
+    }
+
     MathLibrary mathLibrary;
     AudioLibrary audioLibrary;
     juce::HashMap<juce::String, Var> assignedValues;

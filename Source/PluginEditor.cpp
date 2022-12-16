@@ -89,6 +89,10 @@ void ByteToneAudioProcessorEditor::updateAndCheckCode()
     {
         console.setText(error.getMessage());
     }
+    catch (ScanError error)
+    {
+        console.setText(error.getMessage());
+    }
 }
 
 #include "StandaloneWindow.h"

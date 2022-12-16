@@ -48,12 +48,10 @@ enum class TokenType {
     COMMA,
 
     // Not part of restricted C set from source paper
+    LEFT_SQUARE_BRACKET,
+    RIGHT_SQUARE_BRACKET,
     EQUAL,
-    BANG,
-
-    // Maths
-    SIN,
-    COS
+    BANG
 };
 
 struct Token {

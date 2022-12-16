@@ -86,6 +86,24 @@ struct GroupingExpr : Expr
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GroupingExpr)
 };
 
+struct ArrayExpr : Expr
+{
+    ArrayExpr(Token lBracket, Token rBracket, juce::OwnedArray<Expr>& elems) : leftBracket(lBracket), rightBracket(rBracket)
+    {
+        elements.swapWith(elems);
+    }
+
+    virtual ~ArrayExpr() {}
+
+    Var accept(AstVisitor* visitor) const override;
+
+    Token leftBracket;
+    Token rightBracket;
+    juce::OwnedArray<Expr> elements;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ArrayExpr)
+};
+
 struct IdentifierExpr : Expr
 {
     IdentifierExpr(juce::String n) : name(n) {}

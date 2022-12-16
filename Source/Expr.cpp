@@ -55,3 +55,8 @@ Var AssignExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitAssignment(*this);
 }
+
+Var ArrayExpr::accept(AstVisitor* visitor) const
+{
+    return visitor->visitArray(*this);
+}

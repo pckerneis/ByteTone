@@ -12,6 +12,52 @@
 
 #include "Interpreter.h"
 
+
+class SyntaxTest : public juce::UnitTest
+{
+public:
+    SyntaxTest() : UnitTest("SyntaxTest")
+    {
+    }
+
+    void runTest() override
+    {
+        beginTest("function calls");
+
+        expectDoesNotThrow(eval("sin()"));
+        expectDoesNotThrow(eval("sin(12.0)"));
+        expectDoesNotThrow(eval("sin(12.0, toto + b)"));
+
+        expectThrows(eval("sin(hello]"));
+        expectThrows(eval("sin(hey"));
+        expectThrows(eval("sin("));
+
+
+        beginTest("array definition");
+
+        expectDoesNotThrow(eval("[]"));
+        expectDoesNotThrow(eval("[1]"));
+        expectDoesNotThrow(eval("[1, two, 3]"));
+
+        expectThrows(eval("[1, two)"));
+        expectThrows(eval("["));
+        expectThrows(eval("]"));
+    }
+
+    Var eval(juce::String source)
+    {
+        return interpretAt(0, source);
+    }
+
+    Var interpretAt(int position, juce::String source)
+    {
+        Interpreter interpreter;
+        return interpreter.generateRange(source, position, 1, Environment::withTickRate(8000))[0];
+    }
+};
+
+static SyntaxTest syntaxTest;
+
 class ArithmeticOperationsTest : public juce::UnitTest
 {
 public:

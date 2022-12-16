@@ -38,6 +38,8 @@ private:
     Expr* call();
     Expr* finishCall(Expr* callee);
     Expr* primary();
+    Expr* finishArray(Token leftBracket);
+
 
     bool match(juce::Array<TokenType> types);
     bool check(TokenType type);

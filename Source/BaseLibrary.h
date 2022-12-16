@@ -33,7 +33,14 @@ protected:
         registeredFunctions.set(name, function);
     }
 
-    static double getDouble(const Args* a, int pos) { return a->arguments[pos].coercedToDouble(); }
+    static double getDouble(const Args* a, int pos)
+    {
+        if (pos >= a->numArguments) {
+            return 0.0;
+        }
+
+        return a->arguments[pos].coercedToDouble();
+    }
 
     juce::HashMap<juce::String, Var::NativeFunction> registeredFunctions;
 };

@@ -30,6 +30,8 @@ void Scanner::scanToken()
 
     switch (c)
     {
+    case '[': addToken(TokenType::LEFT_SQUARE_BRACKET); break;
+    case ']': addToken(TokenType::RIGHT_SQUARE_BRACKET); break;
     case '(': addToken(TokenType::LEFT_PAREN); break;
     case ')': addToken(TokenType::RIGHT_PAREN); break;
     case '.': addToken(TokenType::DOT); break;

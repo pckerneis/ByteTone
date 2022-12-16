@@ -60,3 +60,8 @@ Var ArrayExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitArray(*this);
 }
+
+Var GetIndexExpr::accept(AstVisitor* visitor) const
+{
+    return visitor->visitGetIndex(*this);
+}

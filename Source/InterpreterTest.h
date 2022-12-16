@@ -42,6 +42,16 @@ public:
         expectThrows(eval("[1, two)"));
         expectThrows(eval("["));
         expectThrows(eval("]"));
+
+        beginTest("call and get");
+
+        expectDoesNotThrow(eval("[][1]()[3]"));
+        expectDoesNotThrow(eval("[](0)[s(b[0])]"));
+        expectDoesNotThrow(eval("[12, 4](0)")); // Should it throw ?
+
+        expectThrows(eval("[][]"));
+        expectThrows(eval("sin()[]"));
+        expectThrows(eval("s[b()[]]"));
     }
 
     Var eval(juce::String source)

@@ -135,6 +135,24 @@ struct CallExpr : Expr
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CallExpr)
 };
 
+struct GetIndexExpr : Expr
+{
+    GetIndexExpr(Expr* calleeExpr, Token bracketToken, Expr* indexExpr)
+        : callee(calleeExpr), bracket(bracketToken), index(indexExpr)
+    {
+    }
+
+    virtual ~GetIndexExpr() {}
+
+    Var accept(AstVisitor* visitor) const override;
+
+    const std::unique_ptr <Expr> callee;
+    Token bracket;
+    const std::unique_ptr <Expr> index;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GetIndexExpr)
+};
+
 struct AssignExpr : Expr
 {
     AssignExpr(juce::String l, Token oper, Expr* r) : assignee(l), value(r), op(oper) {}

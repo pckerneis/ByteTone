@@ -180,10 +180,10 @@ Expr* Parser::unary()
         return new UnaryExpr(oper, right.release());
     }
 
-    return call();
+    return callOrGet();
 }
 
-Expr* Parser::call()
+Expr* Parser::callOrGet()
 {
     std::unique_ptr<Expr> expr (primary());
 
@@ -192,6 +192,12 @@ Expr* Parser::call()
         if (match(TokenType::LEFT_PAREN)) 
         {
             expr.reset(finishCall(expr.release()));
+        }
+        else if (match(TokenType::LEFT_SQUARE_BRACKET))
+        {
+            std::unique_ptr<Expr> indexExpr(expression());
+            Token bracket = consume(TokenType::RIGHT_SQUARE_BRACKET, "Expect ']' after index expression");
+            expr.reset(new GetIndexExpr(expr.release(), previous(), indexExpr.release()));
         }
         else
         {

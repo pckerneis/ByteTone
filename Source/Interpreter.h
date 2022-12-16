@@ -210,6 +210,16 @@ private:
 
     Var visitArray(const ArrayExpr& expr) override
     {
+        // TODO
+        return Var();
+    }
+
+    Var visitGetIndex(const GetIndexExpr& expr) override
+    {
+        Var callee = evaluate(expr.callee.get());
+        Var indexValue = evaluate(expr.index.get());
+        // TODO
+        // return callee.getAtIndex(indexValue);
         return Var();
     }
 

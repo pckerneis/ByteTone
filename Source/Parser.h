@@ -35,7 +35,7 @@ private:
     Expr* term();
     Expr* factor();
     Expr* unary();
-    Expr* call();
+    Expr* callOrGet();
     Expr* finishCall(Expr* callee);
     Expr* primary();
     Expr* finishArray(Token leftBracket);

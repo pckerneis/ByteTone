@@ -24,4 +24,5 @@ public:
     virtual Var visitCall(const CallExpr& expr) = 0;
     virtual Var visitAssignment(const AssignExpr& expr) = 0;
     virtual Var visitArray(const ArrayExpr& expr) = 0;
+    virtual Var visitGetIndex(const GetIndexExpr& expr) = 0;
 };

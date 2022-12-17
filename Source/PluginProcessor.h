@@ -90,6 +90,8 @@ private:
     std::atomic<float>* playing    = nullptr;
 
     double positionInSource = 0;
+    double previousTickRate = -1;
+    Environment env;
     float previousGain = 0;
     double gainRampTime = 0.01;
     double ratio;

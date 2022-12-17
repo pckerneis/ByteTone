@@ -34,7 +34,8 @@ ByteToneAudioProcessor::ByteToneAudioProcessor()
             std::make_unique<juce::AudioParameterBool>("playing",
                                                       "Playing",
                                                       false)
-        })
+        }),
+    env(Environment::withTickRate(0))
 {
     auto codeValueTree = parameters.state.getOrCreateChildWithName("CODE", parameters.undoManager);
 
@@ -196,20 +197,42 @@ void ByteToneAudioProcessor::writeBuffer(juce::AudioBuffer<float>& outputBuffer,
         return;
     }
 
-    ratio = getSampleRateParamValue() / getSampleRate();
-    int sourceStart = floor(positionInSource);
-    int numSourceSamples = 1 + ceil((1 + numSamples) * ratio);
-    Array<Var> values = interpreter.evaluateRange(rootExpr.get(), sourceStart, numSourceSamples,
-        Environment::withTickRate(getSampleRateParamValue()));
-    bool floatMode = getModeParamValue() == EvaluationMode::FLOAT;
+
+    const double tickRate = getSampleRateParamValue();
+
+    if (tickRate != previousTickRate)
+    {
+        previousTickRate = tickRate;
+        ratio = tickRate / getSampleRate();
+        env = Environment::withTickRate(tickRate);
+    }
+
+    const int sourceStart = floor(positionInSource);
+    const int numSourceSamples = 1 + ceil((1 + numSamples) * ratio);
+    const Array<Var> values = interpreter.evaluateRange(rootExpr.get(), sourceStart, numSourceSamples, env);
 
     float* outL = outputBuffer.getWritePointer(0, startSample);
     float* outR = outputBuffer.getNumChannels() > 1 ? outputBuffer.getWritePointer(1, startSample) : nullptr;
 
+    int latestPos = -1;
+    float latestValue = 0.0f;
+
     while (--numSamples >= 0)
     {
         int pos = (int)floor(positionInSource - sourceStart);
-        float value = floatMode ? values[pos].coercedToDouble() : ByteBeat::integerToSample(values[pos].coercedToDouble());
+        float value;
+
+        if (pos == latestPos)
+        {
+            value = latestValue;
+        }
+        else
+        {
+            value = values[pos].coercedToDouble();
+            latestPos = pos;
+            latestValue = value;
+        }
+
         *outL++ += value;
 
         if (outR != nullptr)

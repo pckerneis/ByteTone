@@ -24,18 +24,18 @@ public:
     {
     }
 
-    juce::Array<Var> generate(const juce::String source, int numSamples, Environment env)
+    juce::Array<Var> generate(const juce::String source, const int numSamples, const Environment env)
     {
         return generateRange(source, 0, numSamples, env);
     }
 
-    juce::Array<Var> generateRange(const juce::String source, int startSample, int numSamples, Environment env)
+    juce::Array<Var> generateRange(const juce::String source, const int startSample, const int numSamples, const Environment env)
     {
         std::unique_ptr<Expr> expr(parse(source));
         return evaluateRange(expr.get(), startSample, numSamples, env);
     }
 
-    juce::Array<Var> evaluateRange(const Expr* expr, int startSample, int numSamples, Environment env)
+    juce::Array<Var> evaluateRange(const Expr* expr, const int startSample, const int numSamples, const Environment env)
     {
         reset();
 
@@ -169,7 +169,7 @@ private:
         }
         else if(expr.name.equalsIgnoreCase("tickRate"))
         {
-            return Var((double)env.tickRate);
+            return (double)env.tickRate;
         }
 
         if (assignedValues.contains(expr.name))

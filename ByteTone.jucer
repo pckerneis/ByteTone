@@ -13,11 +13,15 @@
         <FILE id="nKXIhz" name="chunk.c" compile="1" resource="0" file="Source/vm/chunk.c"/>
         <FILE id="dVx8ir" name="chunk.h" compile="0" resource="0" file="Source/vm/chunk.h"/>
         <FILE id="pNIa41" name="common.h" compile="0" resource="0" file="Source/vm/common.h"/>
+        <FILE id="px1tW9" name="compiler.c" compile="1" resource="0" file="Source/vm/compiler.c"/>
+        <FILE id="dNJO1Y" name="compiler.h" compile="0" resource="0" file="Source/vm/compiler.h"/>
         <FILE id="RSmYGK" name="debug.c" compile="1" resource="0" file="Source/vm/debug.c"/>
         <FILE id="Cdkawc" name="debug.h" compile="0" resource="0" file="Source/vm/debug.h"/>
         <FILE id="rbew2G" name="main.c" compile="1" resource="0" file="Source/vm/main.c"/>
         <FILE id="UArV4D" name="memory.c" compile="1" resource="0" file="Source/vm/memory.c"/>
         <FILE id="zZiUU4" name="memory.h" compile="0" resource="0" file="Source/vm/memory.h"/>
+        <FILE id="BBTPFY" name="scanner.c" compile="1" resource="0" file="Source/vm/scanner.c"/>
+        <FILE id="ikS5kZ" name="scanner.h" compile="0" resource="0" file="Source/vm/scanner.h"/>
         <FILE id="wLUZIj" name="value.c" compile="1" resource="0" file="Source/vm/value.c"/>
         <FILE id="tYEJAg" name="value.h" compile="0" resource="0" file="Source/vm/value.h"/>
         <FILE id="uSd6Nm" name="vm.c" compile="1" resource="0" file="Source/vm/vm.c"/>

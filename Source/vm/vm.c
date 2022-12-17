@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "vm.h"
+#include "compiler.h"
 #include "debug.h"
 
 VM vm;
@@ -21,7 +22,6 @@ void initVM()
 
 void freeVM()
 {
-
 }
 
 static void resetStack()
@@ -29,11 +29,10 @@ static void resetStack()
   vm.stackTop = vm.stack;
 }
 
-InterpretResult interpret(Chunk* chunk)
+InterpretResult interpret(const char* source)
 {
-  vm.chunk = chunk;
-  vm.ip = vm.chunk->code;
-  return run();
+  compile(source);
+  return INTERPRET_OK;
 }
 
 void push(Value value)

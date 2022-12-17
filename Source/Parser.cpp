@@ -231,7 +231,7 @@ Expr* Parser::finishCall(Expr* callee)
     if (! match(TokenType::RIGHT_PAREN)) {
         do
         {
-            arguments.add(expression());
+            arguments.add(assignment());
         } 
         while (match(TokenType::COMMA));
 

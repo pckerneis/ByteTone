@@ -41,6 +41,7 @@ public:
         registerFunction("pow", pow);
         registerFunction("sqrt", sqrt);
         registerFunction("rand", rand);
+        registerFunction("fmod", fmod);
     }
 
     static Var sin(const Args* a) { return std::sin(getDouble(a, 0)); }
@@ -67,10 +68,16 @@ public:
     static Var pow(const Args* a) { return std::pow(getDouble(a, 0), getDouble(a, 1)); }
     static Var sqrt(const Args* a) { return std::sqrt(getDouble(a, 0)); }
     static Var rand(const Args* a) { return std::rand(); }
-    static Var fmod(const Args* a) { return std::fmod(getDouble(a, 0), getDouble(a, 1)); }
+    static Var fmod(const Args* a)
+    {
+        const double left = getDouble(a, 0);
+        const double right = getDouble(a, 1);
+        return Var(right == 0.0 ? 0.0 : std::fmod(left, right));
+    }
 
     template <typename T>
-    static int signum(T val) {
+    static int signum(T val)
+    {
         return (T(0) < val) - (val < T(0));
     }
 };

@@ -167,6 +167,10 @@ private:
         {
             return t;
         }
+        else if(expr.name.equalsIgnoreCase("tickRate"))
+        {
+            return Var((double)env.tickRate);
+        }
 
         if (assignedValues.contains(expr.name))
         {

@@ -9,6 +9,20 @@
       <FILE id="cdBidz" name="Consolas.ttf" compile="0" resource="1" file="Assets/Consolas.ttf"/>
     </GROUP>
     <GROUP id="{2BB59562-F943-D599-E19B-620605384060}" name="Source">
+      <GROUP id="{1DF93DA2-2934-EE1D-41C3-9D1432CD724F}" name="VirtualMachine">
+        <FILE id="nKXIhz" name="chunk.c" compile="1" resource="0" file="Source/vm/chunk.c"/>
+        <FILE id="dVx8ir" name="chunk.h" compile="0" resource="0" file="Source/vm/chunk.h"/>
+        <FILE id="pNIa41" name="common.h" compile="0" resource="0" file="Source/vm/common.h"/>
+        <FILE id="RSmYGK" name="debug.c" compile="1" resource="0" file="Source/vm/debug.c"/>
+        <FILE id="Cdkawc" name="debug.h" compile="0" resource="0" file="Source/vm/debug.h"/>
+        <FILE id="rbew2G" name="main.c" compile="1" resource="0" file="Source/vm/main.c"/>
+        <FILE id="UArV4D" name="memory.c" compile="1" resource="0" file="Source/vm/memory.c"/>
+        <FILE id="zZiUU4" name="memory.h" compile="0" resource="0" file="Source/vm/memory.h"/>
+        <FILE id="wLUZIj" name="value.c" compile="1" resource="0" file="Source/vm/value.c"/>
+        <FILE id="tYEJAg" name="value.h" compile="0" resource="0" file="Source/vm/value.h"/>
+        <FILE id="uSd6Nm" name="vm.c" compile="1" resource="0" file="Source/vm/vm.c"/>
+        <FILE id="doVsmi" name="vm.h" compile="0" resource="0" file="Source/vm/vm.h"/>
+      </GROUP>
       <GROUP id="{47BFBF14-CD54-73F0-5353-DD2BE002190A}" name="Library">
         <FILE id="vvTawP" name="AudioLibrary.h" compile="0" resource="0" file="Source/AudioLibrary.h"/>
         <FILE id="kkiGBU" name="BaseLibrary.h" compile="0" resource="0" file="Source/BaseLibrary.h"/>

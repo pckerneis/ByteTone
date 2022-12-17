@@ -20,6 +20,20 @@ struct Expr
     virtual Var accept(AstVisitor* visitor) const = 0;
 };
 
+struct SequenceExpr : Expr
+{
+    SequenceExpr(Expr* leftExpr, Token commaToken, Expr* rightExpr) : left(leftExpr), comma(commaToken), right(rightExpr) {}
+    virtual ~SequenceExpr() {}
+
+    Var accept(AstVisitor* visitor) const override;
+
+    const std::unique_ptr<Expr> left;
+    const Token comma;
+    const std::unique_ptr<Expr> right;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SequenceExpr)
+};
+
 struct TernaryConditionalExpr : Expr
 {
     TernaryConditionalExpr(Expr* cond, Expr* ifBranch, Expr* elseBranch) : condition(cond), ifExpr(ifBranch), elseExpr(elseBranch) {}

@@ -17,7 +17,21 @@ Expr* Parser::parse()
 
 Expr* Parser::expression()
 {
-    return assignment();
+    return sequence();
+}
+
+Expr* Parser::sequence()
+{
+    std::unique_ptr<Expr> expr(assignment());
+
+    while (match(juce::Array<TokenType>(TokenType::COMMA)))
+    {
+        Token oper = previous();
+        std::unique_ptr<Expr> right(assignment());
+        expr.reset(new SequenceExpr(expr.release(), oper, right.release()));
+    }
+
+    return expr.release();
 }
 
 Expr* Parser::assignment()
@@ -275,7 +289,7 @@ Expr* Parser::finishArray(Token leftBracket)
     if (!match(TokenType::RIGHT_SQUARE_BRACKET)) {
         do
         {
-            elements.add(expression());
+            elements.add(assignment());
         } while (match(TokenType::COMMA));
 
         Token rightBracket = consume(TokenType::RIGHT_SQUARE_BRACKET, "Expect ']' after elements");

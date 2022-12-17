@@ -15,6 +15,7 @@
 class AstVisitor
 {
 public:
+    virtual Var visitSequence(const SequenceExpr& expr) = 0;
     virtual Var visitLiteral(const LiteralExpr& expr) = 0;
     virtual Var visitUnary(const UnaryExpr& expr) = 0;
     virtual Var visitBinary(const BinaryExpr& expr) = 0;

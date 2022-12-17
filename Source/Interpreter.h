@@ -227,6 +227,12 @@ private:
         return callee.getAt(indexValue);
     }
 
+    Var visitSequence(const SequenceExpr& expr) override
+    {
+        evaluate(expr.left.get());
+        return evaluate(expr.right.get());
+    }
+
     MathLibrary mathLibrary;
     AudioLibrary audioLibrary;
     juce::HashMap<juce::String, Var> assignedValues;

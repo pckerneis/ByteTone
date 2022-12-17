@@ -24,6 +24,7 @@ public:
 
 private:
     Expr* expression();
+    Expr* sequence();
     Expr* assignment();
     Expr* ternaryConditional();
     Expr* bitwiseOr();

@@ -65,3 +65,8 @@ Var GetIndexExpr::accept(AstVisitor* visitor) const
 {
     return visitor->visitGetIndex(*this);
 }
+
+Var SequenceExpr::accept(AstVisitor* visitor) const
+{
+    return visitor->visitSequence(*this);
+}

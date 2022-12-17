@@ -210,17 +210,21 @@ private:
 
     Var visitArray(const ArrayExpr& expr) override
     {
-        // TODO
-        return Var();
+        std::vector<Var> elements;
+
+        for (auto elemExpr : expr.elements)
+        {
+            elements.push_back(evaluate(elemExpr));
+        }
+
+        return Var(elements);
     }
 
     Var visitGetIndex(const GetIndexExpr& expr) override
     {
         Var callee = evaluate(expr.callee.get());
         Var indexValue = evaluate(expr.index.get());
-        // TODO
-        // return callee.getAtIndex(indexValue);
-        return Var();
+        return callee.getAt(indexValue);
     }
 
     MathLibrary mathLibrary;

@@ -32,7 +32,7 @@ public:
     using NativeFunction = std::function<Var(const Args*)>;
 
     enum class Type {
-        BOOL, INT, DOUBLE, UNDEFINED, FUNCTION
+        BOOL, INT, DOUBLE, UNDEFINED, FUNCTION, ARRAY
     };
 
     bool operator ==(const Var& other) const
@@ -46,6 +46,12 @@ public:
         {
             // TODO
             return false;
+        }
+
+        if (isArray())
+        {
+            // TODO check if working
+            return elements == other.elements;
         }
 
         return coercedToBool() == other.coercedToBool()
@@ -87,11 +93,16 @@ public:
     {
     }
 
+    Var(std::vector<Var> elems) : type(Type::ARRAY), elements(elems), boolValue(false), intValue(0), doubleValue(0.0)
+    {
+    }
+
     bool isUndefined() const { return type == Type::UNDEFINED; }
     bool isBool() const { return type == Type::BOOL; }
     bool isInt() const { return type == Type::INT; }
     bool isDouble() const { return type == Type::DOUBLE; }
     bool isFunction() const { return type == Type::FUNCTION; }
+    bool isArray() const { return type == Type::ARRAY; }
 
     bool getBoolValue() const { return boolValue; }
     int getIntValue() const { return intValue; }
@@ -111,21 +122,45 @@ public:
     {
         if (isUndefined()) return false;
         if (isFunction()) return false; // TODO
+        if (isArray()) return false; // TODO
         if (isBool()) return getBoolValue();
         if (isInt()) return bool(getIntValue());
         return bool(getDoubleValue());
     }
 
+    bool canBeCoercedToNumber() const
+    {
+        return !isUndefined() && !isFunction() && !isArray();
+    }
+
     int coercedToInt() const
     {
-        if (isUndefined() || isFunction()) return 0;
+        if (!canBeCoercedToNumber()) return 0;
         return isInt() ? getIntValue() : (isDouble() ? (int)getDoubleValue() : (int)getBoolValue());
     }
 
     double coercedToDouble() const
     {
-        if (isUndefined() || isFunction()) return 0.0;
+        if (!canBeCoercedToNumber()) return 0.0;
         return isDouble() ? getDoubleValue() : (isInt() ? (double)getIntValue() : (double)getBoolValue());
+    }
+
+    Var getAt(Var index)
+    {
+        if (isArray())
+        {
+            if (index.canBeCoercedToNumber())
+            {
+                const int indexNumber = index.coercedToInt();
+                
+                if (indexNumber < elements.size() && indexNumber >= 0)
+                {
+                    return elements[indexNumber];
+                }
+            }
+        }
+
+        return Var();
     }
 
 private:
@@ -134,6 +169,7 @@ private:
     int intValue;
     double doubleValue;
     NativeFunction funcValue;
+    std::vector<Var> elements;
 
     JUCE_LEAK_DETECTOR(Var)
 };

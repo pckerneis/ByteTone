@@ -52,6 +52,12 @@ public:
         expectThrows(eval("[][]"));
         expectThrows(eval("sin()[]"));
         expectThrows(eval("s[b()[]]"));
+
+        beginTest("array access");
+        expectEquals(eval("[0,1,2][-1]").coercedToDouble(), 0.0);
+        expectEquals(eval("[0,1,2][2]").coercedToDouble(), 2.0);
+        expectEquals(eval("[0,1,2][5]").coercedToDouble(), 0.0);
+        expectEquals(eval("[0,1,2][toto]").coercedToDouble(), 0.0);
     }
 
     Var eval(juce::String source)

@@ -37,9 +37,9 @@ typedef struct
   const char* start;
   int length;
   int line;
-} Token;
+} BtlToken;
 
 void initScanner(const char* source);
-Token scanToken();
+BtlToken scanToken();
 
 #endif

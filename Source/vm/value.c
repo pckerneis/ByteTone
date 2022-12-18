@@ -13,6 +13,18 @@
 #include "memory.h"
 #include "value.h"
 
+bool valuesEqual(BtlValue a, BtlValue b)
+{
+  if (a.type != b.type) return false;
+  switch (a.type)
+  {
+    case VAL_BOOL:   return AS_BOOL(a) == AS_BOOL(b);
+    case VAL_NULL:    return true;
+    case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
+    default:         return false; // Unreachable.
+  }
+}
+
 void initValueArray(ValueArray* array)
 {
   array->values = NULL;
@@ -20,12 +32,12 @@ void initValueArray(ValueArray* array)
   array->count = 0;
 }
 
-void writeValueArray(ValueArray* array, Value value)
+void writeValueArray(ValueArray* array, BtlValue value)
 {
   if (array->capacity < array->count + 1) {
     int oldCapacity = array->capacity;
     array->capacity = GROW_CAPACITY(oldCapacity);
-    array->values = GROW_ARRAY(Value, array->values,
+    array->values = GROW_ARRAY(BtlValue, array->values,
                                oldCapacity, array->capacity);
   }
 
@@ -35,11 +47,17 @@ void writeValueArray(ValueArray* array, Value value)
 
 void freeValueArray(ValueArray* array)
 {
-  FREE_ARRAY(Value, array->values, array->capacity);
+  FREE_ARRAY(BtlValue, array->values, array->capacity);
   initValueArray(array);
 }
 
-void printValue(Value value)
+void printValue(BtlValue value)
 {
-  printf("%g", value);
+  switch (value.type) {
+    case VAL_BOOL:
+      printf(AS_BOOL(value) ? "true" : "false");
+      break;
+    case VAL_NULL: printf("null"); break;
+    case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
+  }
 }

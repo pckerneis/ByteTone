@@ -271,3 +271,30 @@ public:
 };
 
 static ArithmeticOperationsTest arithmeticOperationsTest;
+
+extern "C" {
+    #include "vm/vm.h"
+    void initVM();
+    InterpretResult interpret(const char* source);
+    void freeVM();
+}
+
+class VmTest : public juce::UnitTest
+{
+public:
+    VmTest() : UnitTest("VmTest")
+    {
+
+    }
+
+    void runTest() override
+    {
+        beginTest("call vm");
+        initVM();
+        expectEquals(interpret("! (1 + 2 > 3)"), INTERPRET_OK);
+        freeVM();
+
+    }
+};
+
+static VmTest vmTest;

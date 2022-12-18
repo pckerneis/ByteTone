@@ -12,16 +12,16 @@
 #include <string.h>
 
 #include "common.h"
-#include "scanner.h"
+#include "btl_scanner.h"
 
 typedef struct
 {
   const char* start;
   const char* current;
   int line;
-} Scanner;
+} BtlScanner;
 
-Scanner scanner;
+BtlScanner scanner;
 
 void initScanner(const char* source)
 {
@@ -72,9 +72,9 @@ static bool match(char expected)
   return true;
 }
 
-static Token makeToken(TokenType type)
+static BtlToken makeToken(TokenType type)
 {
-  Token token;
+  BtlToken token;
   token.type = type;
   token.start = scanner.start;
   token.length = (int)(scanner.current - scanner.start);
@@ -82,9 +82,9 @@ static Token makeToken(TokenType type)
   return token;
 }
 
-static Token errorToken(const char* message)
+static BtlToken errorToken(const char* message)
 {
-  Token token;
+  BtlToken token;
   token.type = TOKEN_ERROR;
   token.start = message;
   token.length = (int)strlen(message);
@@ -146,13 +146,13 @@ static TokenType identifierType()
   return TOKEN_IDENTIFIER;
 }
 
-static Token identifier()
+static BtlToken identifier()
 {
   while (isAlpha(peek()) || isDigit(peek())) advance();
   return makeToken(identifierType());
 }
 
-static Token number()
+static BtlToken number()
 {
   while (isDigit(peek())) advance();
 
@@ -168,7 +168,7 @@ static Token number()
   return makeToken(TOKEN_NUMBER);
 }
 
-Token scanToken()
+BtlToken scanToken()
 {
   skipWhitespace();
 

@@ -20,8 +20,8 @@ typedef struct
 {
   Chunk* chunk;
   uint8_t* ip;
-  Value stack[STACK_MAX];
-  Value* stackTop;
+  BtlValue stack[STACK_MAX];
+  BtlValue* stackTop;
 } VM;
 
 typedef enum
@@ -35,8 +35,8 @@ void initVM();
 void freeVM();
 static void resetStack();
 InterpretResult interpret(const char* source);
-void push(Value value);
-Value pop();
+void push(BtlValue value);
+BtlValue pop();
 
 static InterpretResult run();
 

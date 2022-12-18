@@ -13,7 +13,7 @@
 
 #include "common.h"
 #include "compiler.h"
-#include "scanner.h"
+#include "btl_scanner.h"
 
 #ifdef DEBUG_PRINT_CODE
 #include "debug.h"
@@ -21,8 +21,8 @@
 
 typedef struct
 {
-  Token current;
-  Token previous;
+  BtlToken current;
+  BtlToken previous;
   bool hadError;
   bool panicMode;
 } Parser;
@@ -59,7 +59,7 @@ static Chunk* currentChunk()
   return compilingChunk;
 }
 
-static void errorAt(Token* token, const char* message)
+static void errorAt(BtlToken* token, const char* message)
 {
   if (parser.panicMode) return;
 
@@ -133,7 +133,7 @@ static void emitReturn()
   emitByte(OP_RETURN);
 }
 
-static uint8_t makeConstant(Value value)
+static uint8_t makeConstant(BtlValue value)
 {
   int constant = addConstant(currentChunk(), value);
 
@@ -146,7 +146,7 @@ static uint8_t makeConstant(Value value)
   return (uint8_t)constant;
 }
 
-static void emitConstant(Value value)
+static void emitConstant(BtlValue value)
 {
   emitBytes(OP_CONSTANT, makeConstant(value));
 }
@@ -174,10 +174,26 @@ static void binary()
 
   switch (operatorType)
   {
+    case TOKEN_BANG_EQUAL:    emitBytes(OP_EQUAL, OP_NOT); break;
+    case TOKEN_EQUAL_EQUAL:   emitByte(OP_EQUAL); break;
+    case TOKEN_GREATER:       emitByte(OP_GREATER); break;
+    case TOKEN_GREATER_EQUAL: emitBytes(OP_LESS, OP_NOT); break;
+    case TOKEN_LESS:          emitByte(OP_LESS); break;
+    case TOKEN_LESS_EQUAL:    emitBytes(OP_GREATER, OP_NOT); break;
     case TOKEN_PLUS:          emitByte(OP_ADD); break;
     case TOKEN_MINUS:         emitByte(OP_SUBTRACT); break;
     case TOKEN_STAR:          emitByte(OP_MULTIPLY); break;
     case TOKEN_SLASH:         emitByte(OP_DIVIDE); break;
+    default: return; // Unreachable.
+  }
+}
+static void literal()
+{
+  switch (parser.previous.type)
+  {
+    case TOKEN_FALSE: emitByte(OP_FALSE); break;
+    case TOKEN_NULL: emitByte(OP_NULL); break;
+    case TOKEN_TRUE: emitByte(OP_TRUE); break;
     default: return; // Unreachable.
   }
 }
@@ -191,7 +207,7 @@ static void grouping()
 static void number()
 {
   double value = strtod(parser.previous.start, NULL);
-  emitConstant(value);
+  emitConstant(NUMBER_VAL(value));
 }
 
 static void unary()
@@ -202,6 +218,7 @@ static void unary()
 
   switch(operatorType)
   {
+    case TOKEN_BANG: emitByte(OP_NOT); break;
     case TOKEN_MINUS: emitByte(OP_NEGATE); break;
     default: return; // Unreachable
   }
@@ -219,20 +236,20 @@ ParseRule rules[] = {
   [TOKEN_SEMICOLON]     = {NULL,     NULL,   PREC_NONE},
   [TOKEN_SLASH]         = {NULL,     binary, PREC_FACTOR},
   [TOKEN_STAR]          = {NULL,     binary, PREC_FACTOR},
-  [TOKEN_BANG]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_BANG_EQUAL]    = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_BANG]          = {unary,    NULL,   PREC_NONE},
+  [TOKEN_BANG_EQUAL]    = {NULL,     binary, PREC_EQUALITY},
   [TOKEN_EQUAL]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_EQUAL_EQUAL]   = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_GREATER]       = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_GREATER_EQUAL] = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_LESS]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_LESS_EQUAL]    = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_EQUAL_EQUAL]   = {NULL,     binary, PREC_EQUALITY},
+  [TOKEN_GREATER]       = {NULL,     binary, PREC_COMPARISON},
+  [TOKEN_GREATER_EQUAL] = {NULL,     binary, PREC_COMPARISON},
+  [TOKEN_LESS]          = {NULL,     binary, PREC_COMPARISON},
+  [TOKEN_LESS_EQUAL]    = {NULL,     binary, PREC_COMPARISON},
   [TOKEN_IDENTIFIER]    = {NULL,     NULL,   PREC_NONE},
   [TOKEN_STRING]        = {NULL,     NULL,   PREC_NONE},
   [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
-  [TOKEN_FALSE]         = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_NULL]          = {NULL,     NULL,   PREC_NONE},
-  [TOKEN_TRUE]          = {NULL,     NULL,   PREC_NONE},
+  [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
+  [TOKEN_NULL]          = {literal,  NULL,   PREC_NONE},
+  [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},
   [TOKEN_ERROR]         = {NULL,     NULL,   PREC_NONE},
   [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
 };

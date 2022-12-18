@@ -28,6 +28,9 @@ typedef enum
   // Keywords.
   TOKEN_FALSE, TOKEN_NULL, TOKEN_TRUE,
 
+  // clox keywords
+  TOKEN_PRINT, TOKEN_VAR,
+
   TOKEN_ERROR, TOKEN_EOF
 } TokenType;
 

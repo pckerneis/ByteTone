@@ -23,6 +23,7 @@ typedef struct
   uint8_t* ip;
   BtlValue stack[STACK_MAX];
   BtlValue* stackTop;
+  Table globals;
   Table strings;
   Obj* objects;
 } VM;

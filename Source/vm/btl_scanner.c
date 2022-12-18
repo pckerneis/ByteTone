@@ -154,7 +154,9 @@ static TokenType identifierType()
   {
     case 'f': return checkKeyword(1, 4, "alse", TOKEN_FALSE);
     case 'n': return checkKeyword(1, 3, "ull", TOKEN_NULL);
+    case 'p': return checkKeyword(1, 4, "rint", TOKEN_PRINT);
     case 't': return checkKeyword(1, 3, "rue", TOKEN_TRUE);
+    case 'v': return checkKeyword(1, 2, "ar", TOKEN_VAR);
   }
 
   return TOKEN_IDENTIFIER;

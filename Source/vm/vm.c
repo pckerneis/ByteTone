@@ -30,10 +30,12 @@ void initVM()
 {
   resetStack();
   vm.objects = NULL;
+  initTable(&vm.strings);
 }
 
 void freeVM()
 {
+  freeTable(&vm.strings);
   freeObjects();
 }
 
@@ -90,7 +92,7 @@ static BtlValue peek(int distance)
 
 static bool isFalsey(BtlValue value)
 {
-  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+  return IS_NULL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
 static void concatenate()

@@ -6,7 +6,10 @@
     "scanner.h": "c",
     "stdio.h": "c",
     "type_traits": "c",
-    "memory.h": "c"
+    "memory.h": "c",
+    "stdlib.h": "c",
+    "table.h": "c",
+    "chunk.h": "c"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

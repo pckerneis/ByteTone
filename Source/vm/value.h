@@ -36,7 +36,7 @@ typedef struct
 } BtlValue;
 
 #define IS_BOOL(value)    ((value).type == VAL_BOOL)
-#define IS_NIL(value)     ((value).type == VAL_NULL)
+#define IS_NULL(value)     ((value).type == VAL_NULL)
 #define IS_NUMBER(value)  ((value).type == VAL_NUMBER)
 #define IS_OBJ(value)     ((value).type == VAL_OBJ)
 

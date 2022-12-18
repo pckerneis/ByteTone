@@ -22,6 +22,8 @@
         <FILE id="rbew2G" name="main.c" compile="1" resource="0" file="Source/vm/main.c"/>
         <FILE id="UArV4D" name="memory.c" compile="1" resource="0" file="Source/vm/memory.c"/>
         <FILE id="zZiUU4" name="memory.h" compile="0" resource="0" file="Source/vm/memory.h"/>
+        <FILE id="W7nNBQ" name="object.c" compile="1" resource="0" file="Source/vm/object.c"/>
+        <FILE id="uabZE9" name="object.h" compile="0" resource="0" file="Source/vm/object.h"/>
         <FILE id="wLUZIj" name="value.c" compile="1" resource="0" file="Source/vm/value.c"/>
         <FILE id="tYEJAg" name="value.h" compile="0" resource="0" file="Source/vm/value.h"/>
         <FILE id="uSd6Nm" name="vm.c" compile="1" resource="0" file="Source/vm/vm.c"/>

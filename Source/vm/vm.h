@@ -22,6 +22,7 @@ typedef struct
   uint8_t* ip;
   BtlValue stack[STACK_MAX];
   BtlValue* stackTop;
+  Obj* objects;
 } VM;
 
 typedef enum
@@ -30,6 +31,8 @@ typedef enum
   INTERPRET_COMPILE_ERROR,
   INTERPRET_RUNTIME_ERROR
 } InterpretResult;
+
+extern VM vm;
 
 void initVM();
 void freeVM();

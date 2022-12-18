@@ -9,7 +9,9 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
+#include "object.h"
 #include "memory.h"
 #include "value.h"
 
@@ -21,6 +23,13 @@ bool valuesEqual(BtlValue a, BtlValue b)
     case VAL_BOOL:   return AS_BOOL(a) == AS_BOOL(b);
     case VAL_NULL:    return true;
     case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
+    case VAL_OBJ: {
+      ObjString* aString = AS_STRING(a);
+      ObjString* bString = AS_STRING(b);
+      return aString->length == bString->length &&
+          memcmp(aString->chars, bString->chars,
+                 aString->length) == 0;
+    }
     default:         return false; // Unreachable.
   }
 }
@@ -59,5 +68,6 @@ void printValue(BtlValue value)
       break;
     case VAL_NULL: printf("null"); break;
     case VAL_NUMBER: printf("%g", AS_NUMBER(value)); break;
+    case VAL_OBJ: printObject(value); break;
   }
 }

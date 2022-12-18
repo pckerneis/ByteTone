@@ -89,7 +89,7 @@ int main(int argc, const char* argv[])
   }
   else
   {
-    fprintf(stderr, "Usage: clox [path]\n");
+    fprintf(stderr, "Usage: btlang [path]\n");
     exit(64);
   }
 

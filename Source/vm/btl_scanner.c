@@ -123,6 +123,20 @@ static void skipWhitespace()
   }
 }
 
+static BtlToken string()
+{
+  while (peek() != '"' && !isAtEnd()) {
+    if (peek() == '\n') scanner.line++;
+    advance();
+  }
+
+  if (isAtEnd()) return errorToken("Unterminated string.");
+
+  // The closing quote.
+  advance();
+  return makeToken(TOKEN_STRING);
+}
+
 static TokenType checkKeyword(int start, int length,
                               const char* rest, TokenType type) {
   if (scanner.current - scanner.start == start + length &&
@@ -205,6 +219,7 @@ BtlToken scanToken()
     case '>':
       return makeToken(
           match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+    case '"': return string();
   }
 
   return errorToken("Unexpected character.");

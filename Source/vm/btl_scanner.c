@@ -209,6 +209,12 @@ BtlToken scanToken()
     case '+': return makeToken(TOKEN_PLUS);
     case '/': return makeToken(TOKEN_SLASH);
     case '*': return makeToken(TOKEN_STAR);
+    case '&':
+      return makeToken(
+          match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND);
+    case '|':
+      return makeToken(
+          match('|') ? TOKEN_LOGICAL_OR : TOKEN_BITWISE_OR);
     case '!':
       return makeToken(
           match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);

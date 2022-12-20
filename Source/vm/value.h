@@ -42,6 +42,7 @@ typedef struct
 
 #define AS_BOOL(value)    ((value).as.boolean)
 #define AS_NUMBER(value)  ((value).as.number)
+#define AS_INTEGER(value) ((int)(value).as.number)
 #define AS_OBJ(value)     ((value).as.obj)
 
 #define BOOL_VAL(value)   ((BtlValue){VAL_BOOL, {.boolean = value}})

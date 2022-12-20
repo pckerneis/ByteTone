@@ -201,6 +201,16 @@ static InterpretResult run()
       double a = AS_NUMBER(pop()); \
       push(valueType(a op b)); \
     } while (false)
+#define BINARY_BITWISE_OP(valueType, op) \
+    do { \
+      if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
+        runtimeError("Operands must be numbers."); \
+        return INTERPRET_RUNTIME_ERROR; \
+      } \
+      int b = AS_INTEGER(pop()); \
+      int a = AS_INTEGER(pop()); \
+      push(valueType(a op b)); \
+    } while (false)
 
   for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
@@ -302,6 +312,18 @@ static InterpretResult run()
       case OP_SUBTRACT: BINARY_OP(NUMBER_VAL, -); break;
       case OP_MULTIPLY: BINARY_OP(NUMBER_VAL, *); break;
       case OP_DIVIDE:   BINARY_OP(NUMBER_VAL, /); break;
+      case OP_BITWISE_AND: BINARY_BITWISE_OP(NUMBER_VAL, &); break;
+      case OP_BITWISE_OR:  BINARY_BITWISE_OP(NUMBER_VAL, |); break;
+      case OP_BITWISE_XOR: BINARY_BITWISE_OP(NUMBER_VAL, ^); break;
+      case OP_BITWISE_NOT:
+        if (!IS_NUMBER(peek(0)))
+        {
+          runtimeError("Operands must be numbers."); \
+          return INTERPRET_RUNTIME_ERROR; \
+        }
+        
+        push(NUMBER_VAL(~AS_INTEGER(pop())));
+        break;
       case OP_NOT:
         push(BOOL_VAL(isFalsey(pop())));
         break;
@@ -327,7 +349,7 @@ static InterpretResult run()
       case OP_JUMP_IF_FALSE:
       {
         uint16_t offset = READ_SHORT();
-       if (isFalsey(peek(0))) frame->ip += offset;
+        if (isFalsey(peek(0))) frame->ip += offset;
         break;
       }
       case OP_CALL:

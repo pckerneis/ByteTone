@@ -34,11 +34,14 @@ typedef enum
   PREC_ASSIGNMENT,  // =
   PREC_OR,          // ||
   PREC_AND,         // &&
+  PREC_BITWISE_OR,  // |
+  PREC_BITWISE_XOR, // ^
+  PREC_BITWISE_AND, // &
   PREC_EQUALITY,    // == !=
   PREC_COMPARISON,  // < > <= >=
   PREC_TERM,        // + -
   PREC_FACTOR,      // * /
-  PREC_UNARY,       // ! -
+  PREC_UNARY,       // ! - ~
   PREC_CALL,        // () []
   PREC_PRIMARY
 } Precedence;
@@ -290,6 +293,9 @@ static void binary(bool canAssign)
     case TOKEN_MINUS:         emitByte(OP_SUBTRACT); break;
     case TOKEN_STAR:          emitByte(OP_MULTIPLY); break;
     case TOKEN_SLASH:         emitByte(OP_DIVIDE); break;
+    case TOKEN_BITWISE_AND:   emitByte(OP_BITWISE_AND); break;
+    case TOKEN_BITWISE_OR:    emitByte(OP_BITWISE_OR); break;
+    case TOKEN_BITWISE_XOR:   emitByte(OP_BITWISE_XOR); break;
     default: return; // Unreachable.
   }
 }
@@ -485,6 +491,7 @@ static void unary(bool canAssign)
   {
     case TOKEN_BANG: emitByte(OP_NOT); break;
     case TOKEN_MINUS: emitByte(OP_NEGATE); break;
+    case TOKEN_BITWISE_NOT: emitByte(OP_BITWISE_NOT); break;
     default: return; // Unreachable
   }
 }
@@ -514,6 +521,10 @@ ParseRule rules[] = {
   [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
   [TOKEN_LOGICAL_AND]   = {NULL,     and_,   PREC_AND},
   [TOKEN_LOGICAL_OR]    = {NULL,     or_,    PREC_OR},
+  [TOKEN_BITWISE_AND]   = {NULL,     binary, PREC_BITWISE_AND},
+  [TOKEN_BITWISE_OR]    = {NULL,     binary, PREC_BITWISE_OR},
+  [TOKEN_BITWISE_XOR]   = {NULL,     binary, PREC_BITWISE_XOR},
+  [TOKEN_BITWISE_NOT]   = {unary,    NULL,   PREC_UNARY},
   [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
   [TOKEN_NULL]          = {literal,  NULL,   PREC_NONE},
   [TOKEN_TRUE]          = {literal,  NULL,   PREC_NONE},

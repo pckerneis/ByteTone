@@ -221,6 +221,8 @@ BtlToken scanToken()
     case '+': return makeToken(TOKEN_PLUS);
     case '/': return makeToken(TOKEN_SLASH);
     case '*': return makeToken(TOKEN_STAR);
+    case '~': return makeToken(TOKEN_BITWISE_NOT);
+    case '^': return makeToken(TOKEN_BITWISE_XOR);
     case '&':
       return makeToken(
           match('&') ? TOKEN_LOGICAL_AND : TOKEN_BITWISE_AND);

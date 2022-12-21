@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #include "common.h"
 #include "debug.h"
@@ -26,6 +27,13 @@ static BtlValue clockNative(int argCount, BtlValue* args)
 {
   return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
+
+static BtlValue sinNative(int argCount, BtlValue* a) { return NUMBER_VAL(sin(a->as.number)); }
+static BtlValue floorNative(int argCount, BtlValue* a) { return NUMBER_VAL(floor(a->as.number)); }
+static BtlValue ceilNative(int argCount, BtlValue* a) { return NUMBER_VAL(ceil(a->as.number)); }
+static BtlValue roundNative(int argCount, BtlValue* a) { return NUMBER_VAL(round(a->as.number)); }
+
+static BtlValue sineNative(int argCount, BtlValue* a) { return NUMBER_VAL(sin(2.0 * PI * a->as.number)); }
 
 static void resetStack()
 {
@@ -43,6 +51,11 @@ static void defineNative(const char* name, NativeFn function)
   pop();
 }
 
+static void defineGlobal(char* name, BtlValue value)
+{
+    tableSet(&vm.globals, copyString(name, (int)strlen(name)), value);
+}
+
 void initVM()
 {
   resetStack();
@@ -51,6 +64,15 @@ void initVM()
   initTable(&vm.strings);
 
   defineNative("clock", clockNative);
+
+  defineNative("sin",   sinNative);
+  defineNative("floor", floorNative);
+  defineNative("ceil",  ceilNative);
+  defineNative("round", roundNative);
+
+  defineNative("sine",  sineNative);
+
+  defineGlobal("t",     NUMBER_VAL(0.0)); // TODO
 }
 
 void freeVM()

@@ -15,5 +15,6 @@
 #include "vm.h"
 
 ObjFunction* compile(const char* source);
+ObjFunction* compileExpression(const char* source);
 
 #endif

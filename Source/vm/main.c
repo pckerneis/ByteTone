@@ -27,7 +27,8 @@ static void repl()
       break;
     }
 
-    interpret(line);
+    double v = interpretDouble(line);
+    printf("%f\n", v);
   }
 }
 

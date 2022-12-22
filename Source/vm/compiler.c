@@ -778,3 +778,21 @@ ObjFunction* compile(const char* source)
   ObjFunction* function = endCompiler();
   return parser.hadError ? NULL : function;
 }
+
+ObjFunction* compileExpression(const char* source)
+{
+  initScanner(source);
+  Compiler compiler;
+  initCompiler(&compiler, TYPE_SCRIPT);
+
+  parser.hadError = false;
+  parser.panicMode = false;
+
+  advance();
+
+  expression();
+  emitByte(OP_RETURN);
+
+  ObjFunction* function = endCompiler();
+  return parser.hadError ? NULL : function;
+}

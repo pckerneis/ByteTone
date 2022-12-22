@@ -49,10 +49,12 @@ void initVM();
 void freeVM();
 static void resetStack();
 InterpretResult interpret(const char* source);
+double interpretDouble(const char* source);
 void push(BtlValue value);
 BtlValue pop();
 
-static InterpretResult run();
+static BtlValue runExpression();
+static InterpretResult run(bool evaluateExpr);
 
 #endif
 

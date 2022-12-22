@@ -133,6 +133,32 @@ static bool call(ObjFunction* function, int argCount)
   return true;
 }
 
+// TODO
+// hook up to audio frontend
+// add ',' operator
+// Remove fun decl, blocks, statements, var decl
+// find a way to easily evaluate and print from frontend vs. set current expression to play
+// optimize buffer generation from a single chunk
+
+
+double interpretDouble(const char* source)
+{
+  ObjFunction* function = compileExpression(source);
+  if (function == NULL) return 0.0;
+
+  push(OBJ_VAL(function));
+  call(function, 0);
+
+  BtlValue value = runExpression();
+
+  if (IS_NUMBER(value))
+  {
+    return value.as.number;
+  }
+
+  return 0.0;
+}
+
 InterpretResult interpret(const char* source)
 {
   ObjFunction* function = compile(source);
@@ -141,7 +167,8 @@ InterpretResult interpret(const char* source)
   push(OBJ_VAL(function));
   call(function, 0);
   
-  return run();
+  BtlValue value;
+  return run(false);
 }
 
 void push(BtlValue value)
@@ -203,7 +230,13 @@ static void concatenate()
   push(OBJ_VAL(result));
 }
 
-static InterpretResult run()
+static BtlValue runExpression()
+{
+  run(true);
+  return pop();
+}
+
+static InterpretResult run(bool evaluatingExpr)
 {
   CallFrame* frame = &vm.frames[vm.frameCount - 1];
 
@@ -284,6 +317,7 @@ static InterpretResult run()
         push(value);
         break;
       }
+      // to remove
       case OP_DEFINE_GLOBAL:
       {
         ObjString* name = READ_STRING();
@@ -294,13 +328,7 @@ static InterpretResult run()
       case OP_SET_GLOBAL:
       {
         ObjString* name = READ_STRING();
-
-        if (tableSet(&vm.globals, name, peek(0)))
-        {
-          tableDelete(&vm.globals, name); 
-          runtimeError("Undefined variable '%s'.", name->chars);
-          return INTERPRET_RUNTIME_ERROR;
-        }
+        tableSet(&vm.globals, name, peek(0));
         break;
       }
       case OP_EQUAL: {
@@ -391,8 +419,16 @@ static InterpretResult run()
 
         if (vm.frameCount == 0)
         {
-          pop();
-          return INTERPRET_OK;
+          if (evaluatingExpr)
+          {
+            push(result);
+            return INTERPRET_OK;
+          }
+          else
+          {
+            pop();
+            return INTERPRET_OK;
+          }
         }
 
         vm.stackTop = frame->slots;
